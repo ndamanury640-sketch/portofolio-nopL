@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGS Store — Premium Online Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --black: #0a0a0a;
+  --white: #f5f2ee;
+  --cream: #ede8e0;
+  --accent: #e8521a;
+  --accent2: #f0a500;
+  --muted: #7a7570;
+  --card: #151410;
+  --border: #2a2620;
+  --success: #2ecc71;
+  --danger: #e74c3c;
+  --admin-accent: #6c63ff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* ===== NOISE TEXTURE ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  width: 90%;
+  max-width: 480px;
+  position: relative;
+  animation: modalIn .3s ease;
+}
+@keyframes modalIn {
+  from { transform: translateY(30px) scale(.96); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: none; border: none;
+  color: var(--muted); font-size: 20px;
+  cursor: pointer; transition: color .2s;
+}
+.modal-close:hover { color: var(--white); }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: 10px;
+  font-family: 'Syne', sans-serif; font-weight: 600;
+  font-size: 14px; cursor: pointer;
+  border: none; transition: all .2s; text-decoration: none;
+  letter-spacing: .3px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #d44510; transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: var(--white); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-admin { background: var(--admin-accent); color: #fff; }
+.btn-admin:hover { background: #5a52d5; transform: translateY(-1px); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #c0392b; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-sm { padding: 8px 16px; font-size: 12px; }
+.btn-full { width: 100%; justify-content: center; }
+.btn-social {
+  background: var(--border); color: var(--white);
+  border: 1.5px solid #333; width: 100%;
+  justify-content: flex-start; margin-bottom: 10px;
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+}
+.btn-social:hover { background: #222; border-color: var(--accent); }
+
+/* ===== FORM ===== */
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+.form-input {
+  width: 100%; padding: 12px 16px;
+  background: #1a1815; border: 1.5px solid var(--border);
+  border-radius: 10px; color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-size: 14px;
+  transition: border-color .2s;
+  outline: none;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: #4a4540; }
+textarea.form-input { resize: vertical; min-height: 90px; }
+select.form-input { cursor: pointer; }
+.form-divider {
+  text-align: center; color: var(--muted); font-size: 12px;
+  margin: 18px 0; position: relative;
+}
+.form-divider::before, .form-divider::after {
+  content: ''; position: absolute; top: 50%;
+  width: 40%; height: 1px; background: var(--border);
+}
+.form-divider::before { left: 0; }
+.form-divider::after { right: 0; }
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; font-family: 'Syne', sans-serif;
+}
+.badge-orange { background: rgba(232,82,26,.15); color: var(--accent); border: 1px solid rgba(232,82,26,.3); }
+.badge-green { background: rgba(46,204,113,.15); color: var(--success); border: 1px solid rgba(46,204,113,.3); }
+.badge-purple { background: rgba(108,99,255,.15); color: var(--admin-accent); border: 1px solid rgba(108,99,255,.3); }
+.badge-red { background: rgba(231,76,60,.15); color: var(--danger); border: 1px solid rgba(231,76,60,.3); }
+.badge-gold { background: rgba(240,165,0,.15); color: var(--accent2); border: 1px solid rgba(240,165,0,.3); }
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9998; display: flex; flex-direction: column; gap: 10px;
+}
+.toast {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  min-width: 260px; animation: toastIn .3s ease;
+  font-size: 14px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--accent); }
+@keyframes toastIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes toastOut { from { transform: none; opacity: 1; } to { transform: translateX(40px); opacity: 0; } }
+
+/* ============================================
+   LANDING / HOME SCREEN
+   ============================================ */
+#screen-home {
+  min-height: 100vh;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 60px;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,10,10,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px;
+  color: var(--white); letter-spacing: -0.5px;
+}
+.nav-logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 14px; font-weight: 500; transition: color .2s;
+  cursor: pointer;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--white); }
+.nav-actions { display: flex; align-items: center; gap: 12px; }
+.cart-btn {
+  position: relative; background: none; border: none;
+  color: var(--white); font-size: 20px; cursor: pointer;
+  padding: 8px; transition: color .2s;
+}
+.cart-btn:hover { color: var(--accent); }
+.cart-count {
+  position: absolute; top: 2px; right: 2px;
+  background: var(--accent); color: #fff;
+  font-size: 10px; font-weight: 700;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.user-menu { position: relative; }
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; cursor: pointer;
+  border: 2px solid var(--border); transition: border-color .2s;
+}
+.user-avatar:hover { border-color: var(--accent); }
+.user-dropdown {
+  display: none; position: absolute; top: 50px; right: 0;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 10px;
+  min-width: 180px; z-index: 200;
+}
+.user-dropdown.open { display: block; animation: modalIn .2s ease; }
+.user-dropdown a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  color: var(--white); text-decoration: none;
+  font-size: 13px; transition: background .2s; cursor: pointer;
+}
+.user-dropdown a:hover { background: var(--border); }
+.user-dropdown a.danger { color: var(--danger); }
+
+/* HERO */
+.hero {
+  padding: 160px 60px 80px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: center;
+  min-height: 100vh;
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(232,82,26,.08); border: 1px solid rgba(232,82,26,.2);
+  border-radius: 30px; padding: 6px 14px;
+  font-size: 12px; color: var(--accent); font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.hero-title {
+  font-size: clamp(42px, 5vw, 72px); font-weight: 800;
+  line-height: 1.05; letter-spacing: -2px;
+  margin-bottom: 20px;
+}
+.hero-title span { color: var(--accent); }
+.hero-desc {
+  color: var(--muted); font-size: 16px; line-height: 1.7;
+  margin-bottom: 36px; max-width: 420px;
+}
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.hero-stats {
+  display: flex; gap: 40px; margin-top: 48px;
+}
+.hero-stat span {
+  display: block; font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 28px; color: var(--white);
+}
+.hero-stat small { color: var(--muted); font-size: 13px; }
+
+.hero-visual {
+  position: relative; height: 520px;
+}
+.hero-card-main {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px; height: 340px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 24px; overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,.5);
+}
+.hero-card-main img { width: 100%; height: 200px; object-fit: cover; }
+.hero-card-main .card-info { padding: 18px; }
+.hero-card-main .card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+.hero-card-main .card-price { color: var(--accent); font-weight: 600; margin-top: 6px; }
+.hero-card-float {
+  position: absolute; background: var(--card);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 18px; font-size: 13px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+  animation: float 3s ease-in-out infinite;
+}
+.hero-card-float:nth-child(2) { top: 10%; left: 0; animation-delay: .5s; }
+.hero-card-float:nth-child(3) { bottom: 15%; right: 0; animation-delay: 1s; }
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.float-label { color: var(--muted); font-size: 11px; margin-bottom: 4px; }
+.float-val { font-family: 'Syne', sans-serif; font-weight: 700; }
+.float-val.green { color: var(--success); }
+.float-val.orange { color: var(--accent); }
+
+/* MARQUEE */
+.marquee-wrap {
+  overflow: hidden; border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0; background: var(--card);
+}
+.marquee {
+  display: flex; gap: 48px; width: max-content;
+  animation: marquee 20s linear infinite;
+}
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-item {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--muted); font-size: 13px; font-weight: 500; white-space: nowrap;
+}
+.marquee-item i { color: var(--accent); }
+
+/* PRODUCTS SECTION */
+.products-section { padding: 80px 60px; }
+.section-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 40px;
+}
+.section-title { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+.section-title span { color: var(--accent); }
+.filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-tab {
+  padding: 8px 18px; border-radius: 30px;
+  background: transparent; border: 1.5px solid var(--border);
+  color: var(--muted); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: 'DM Sans', sans-serif;
+}
+.filter-tab.active, .filter-tab:hover {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+
+/* PRODUCT GRID */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+.product-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden;
+  transition: transform .2s, box-shadow .2s; cursor: pointer;
+  position: relative;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.4);
+  border-color: rgba(232,82,26,.3);
+}
+.product-img-wrap { position: relative; overflow: hidden; height: 200px; }
+.product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.product-card:hover .product-img-wrap img { transform: scale(1.05); }
+.product-img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px; background: #1a1815;
+}
+.product-badges {
+  position: absolute; top: 12px; left: 12px; display: flex; gap: 6px;
+}
+.product-wishlist {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(10,10,10,.6); border: none; border-radius: 50%;
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  color: var(--muted); cursor: pointer; transition: all .2s;
+}
+.product-wishlist:hover, .product-wishlist.active { color: #e74c3c; }
+.product-info { padding: 18px; }
+.product-category { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.product-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; line-height: 1.3; }
+.product-price-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+.product-price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--accent); }
+.product-price-old { color: var(--muted); font-size: 12px; text-decoration: line-through; margin-left: 6px; }
+.product-rating { color: var(--accent2); font-size: 12px; }
+.product-stock { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.add-to-cart-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--accent); border: none; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .2s; flex-shrink: 0;
+}
+.add-to-cart-btn:hover { background: #d44510; }
+
+/* VOUCHER BANNER */
+.voucher-banner {
+  margin: 0 60px 80px;
+  background: linear-gradient(135deg, rgba(232,82,26,.15), rgba(240,165,0,.1));
+  border: 1px solid rgba(232,82,26,.25);
+  border-radius: 20px; padding: 36px 48px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.voucher-banner-text h3 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.voucher-banner-text p { color: var(--muted); font-size: 14px; }
+.voucher-code-input { display: flex; gap: 10px; }
+.voucher-code-input input {
+  padding: 12px 18px; background: rgba(10,10,10,.6);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  color: var(--white); font-family: 'Syne', sans-serif; font-weight: 600;
+  font-size: 14px; letter-spacing: 2px; width: 200px; outline: none;
+  transition: border-color .2s;
+}
+.voucher-code-input input:focus { border-color: var(--accent); }
+
+/* FOOTER */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 48px 60px 32px;
+}
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px; margin-bottom: 48px;
+}
+.footer-brand .nav-logo { font-size: 24px; margin-bottom: 14px; display: block; }
+.footer-brand p { color: var(--muted); font-size: 14px; line-height: 1.6; max-width: 260px; }
+.footer-col h5 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 16px; font-size: 14px; }
+.footer-col a {
+  display: block; color: var(--muted); text-decoration: none;
+  font-size: 13px; margin-bottom: 10px; transition: color .2s; cursor: pointer;
+}
+.footer-col a:hover { color: var(--white); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 24px; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: 12px;
+}
+.social-links { display: flex; gap: 12px; }
+.social-link {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); text-decoration: none; transition: all .2s;
+}
+.social-link:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================
+   CART SIDEBAR
+   ============================================ */
+.cart-sidebar {
+  position: fixed; top: 0; right: -420px; width: 420px; height: 100vh;
+  background: var(--card); border-left: 1px solid var(--border);
+  z-index: 500; transition: right .3s ease;
+  display: flex; flex-direction: column;
+}
+.cart-sidebar.open { right: 0; }
+.cart-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 499; display: none; backdrop-filter: blur(4px);
+}
+.cart-overlay.open { display: block; }
+.cart-header {
+  padding: 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cart-header h3 { font-size: 20px; font-weight: 800; }
+.cart-close-btn { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+.cart-items { flex: 1; overflow-y: auto; padding: 16px; }
+.cart-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; color: var(--muted); text-align: center; gap: 12px;
+}
+.cart-empty i { font-size: 48px; opacity: .3; }
+.cart-item {
+  display: flex; gap: 14px; padding: 14px;
+  background: #1a1815; border-radius: 14px; margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+.cart-item-img {
+  width: 64px; height: 64px; border-radius: 10px;
+  background: var(--border); overflow: hidden; flex-shrink: 0;
+}
+.cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.cart-item-price { color: var(--accent); font-weight: 600; font-size: 14px; }
+.cart-item-controls { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.qty-btn {
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--border); border: none; color: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; transition: background .2s;
+}
+.qty-btn:hover { background: var(--accent); }
+.qty-display { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
+.cart-item-remove { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; margin-left: auto; }
+.cart-footer {
+  padding: 20px; border-top: 1px solid var(--border);
+}
+.cart-voucher { display: flex; gap: 8px; margin-bottom: 16px; }
+.cart-voucher input {
+  flex: 1; padding: 10px 14px;
+  background: #1a1815; border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--white); font-size: 13px; outline: none;
+  font-family: 'Syne', sans-serif; letter-spacing: 1px;
+  transition: border-color .2s;
+}
+.cart-voucher input:focus { border-color: var(--accent); }
+.cart-totals { margin-bottom: 16px; }
+.cart-total-row {
+  display: flex; justify-content: space-between;
+  font-size: 14px; margin-bottom: 8px; color: var(--muted);
+}
+.cart-total-row.total {
+  color: var(--white); font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 18px; margin-top: 12px;
+  padding-top: 12px; border-top: 1px solid var(--border);
+}
+.cart-total-row .discount { color: var(--success); }
+
+/* ============================================
+   PRODUCT DETAIL MODAL
+   ============================================ */
+.product-modal-inner {
+  max-width: 800px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+}
+.product-modal-img {
+  border-radius: 16px; overflow: hidden;
+  background: #1a1815; height: 320px;
+  display: flex; align-items: center; justify-content: center;
+}
+.product-modal-img img { width: 100%; height: 100%; object-fit: cover; }
+.product-modal-img .placeholder-icon { font-size: 64px; }
+.product-modal-info { display: flex; flex-direction: column; justify-content: space-between; }
+.product-modal-category { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.product-modal-name { font-size: 24px; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
+.product-modal-price { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 16px; }
+.product-modal-desc { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+.qty-control { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.qty-control-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--border); border: none; color: var(--white);
+  cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.qty-control-btn:hover { background: var(--accent); }
+
+/* ============================================
+   AUTH MODAL
+   ============================================ */
+.auth-modal { max-width: 420px; }
+.auth-tabs { display: flex; margin-bottom: 28px; border-bottom: 1px solid var(--border); }
+.auth-tab {
+  flex: 1; padding: 12px; background: none; border: none;
+  color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 600;
+  font-size: 14px; cursor: pointer; transition: all .2s;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.auth-content { display: none; }
+.auth-content.active { display: block; }
+.forgot-link {
+  text-align: right; margin-top: -10px; margin-bottom: 16px;
+  font-size: 12px; color: var(--muted); cursor: pointer;
+}
+.forgot-link:hover { color: var(--accent); }
+
+/* ============================================
+   ADMIN PANEL SCREEN
+   ============================================ */
+#screen-admin { min-height: 100vh; background: var(--black); }
+.admin-layout { display: flex; min-height: 100vh; }
+
+/* ADMIN SIDEBAR */
+.admin-sidebar {
+  width: 260px; background: var(--card);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; height: 100vh; top: 0; left: 0;
+  z-index: 200;
+}
+.admin-logo {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.admin-logo .nav-logo { display: block; font-size: 20px; }
+.admin-badge { margin-top: 6px; }
+.admin-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.admin-nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 12px;
+  color: var(--muted); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .2s; margin-bottom: 4px;
+  text-decoration: none; border: none; background: none; width: 100%;
+  font-family: 'DM Sans', sans-serif; text-align: left;
+}
+.admin-nav-item i { width: 20px; text-align: center; }
+.admin-nav-item:hover { background: var(--border); color: var(--white); }
+.admin-nav-item.active { background: rgba(108,99,255,.15); color: var(--admin-accent); }
+.admin-nav-divider { height: 1px; background: var(--border); margin: 12px 0; }
+.admin-sidebar-footer {
+  padding: 20px 12px; border-top: 1px solid var(--border);
+}
+
+/* ADMIN MAIN */
+.admin-main {
+  margin-left: 260px; flex: 1; padding: 36px; min-height: 100vh;
+}
+.admin-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px;
+}
+.admin-page-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.admin-page-title span { color: var(--admin-accent); }
+
+/* ADMIN STATS */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 22px;
+}
+.stat-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.stat-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.stat-icon.orange { background: rgba(232,82,26,.15); color: var(--accent); }
+.stat-icon.purple { background: rgba(108,99,255,.15); color: var(--admin-accent); }
+.stat-icon.green { background: rgba(46,204,113,.15); color: var(--success); }
+.stat-icon.gold { background: rgba(240,165,0,.15); color: var(--accent2); }
+.stat-change { font-size: 12px; color: var(--success); }
+.stat-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; }
+.stat-label { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+/* ADMIN TABLE */
+.admin-table-wrap {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden; margin-bottom: 24px;
+}
+.admin-table-header {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.admin-table-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+.admin-search {
+  display: flex; align-items: center; gap: 10px;
+  background: #1a1815; border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 8px 14px; flex: 1; max-width: 280px;
+}
+.admin-search input {
+  background: none; border: none; outline: none;
+  color: var(--white); font-size: 14px; width: 100%;
+  font-family: 'DM Sans', sans-serif;
+}
+.admin-search i { color: var(--muted); font-size: 14px; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left; padding: 14px 20px;
+  color: var(--muted); font-size: 11px; text-transform: uppercase;
+  letter-spacing: 1px; font-weight: 600; font-family: 'Syne', sans-serif;
+  border-bottom: 1px solid var(--border); background: #111;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,.02); }
+td { padding: 14px 20px; font-size: 14px; vertical-align: middle; }
+.td-product { display: flex; align-items: center; gap: 12px; }
+.td-img {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--border); overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.td-img img { width: 100%; height: 100%; object-fit: cover; }
+.td-name { font-weight: 500; }
+.td-cat { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.td-actions { display: flex; gap: 6px; }
+
+/* ADMIN SUB PAGES */
+.admin-subpage { display: none; }
+.admin-subpage.active { display: block; }
+
+/* ADMIN PRODUCT FORM */
+.product-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.product-form-grid .full { grid-column: 1/-1; }
+
+/* VOUCHER CARDS */
+.voucher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+.voucher-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+}
+.voucher-card-top {
+  background: linear-gradient(135deg, rgba(232,82,26,.2), rgba(240,165,0,.15));
+  padding: 20px; border-bottom: 1px dashed var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.voucher-code {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px;
+  letter-spacing: 2px; color: var(--accent);
+}
+.voucher-discount { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 32px; color: var(--white); }
+.voucher-card-bot { padding: 16px 20px; }
+.voucher-info-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.voucher-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* PENDING ADMIN REQUESTS */
+.pending-card {
+  background: var(--card); border: 1px solid rgba(108,99,255,.3);
+  border-radius: 14px; padding: 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.pending-info { display: flex; align-items: center; gap: 14px; }
+.pending-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(108,99,255,.2); display: flex; align-items: center; justify-content: center;
+  color: var(--admin-accent); font-size: 18px;
+}
+.pending-name { font-weight: 600; margin-bottom: 4px; }
+.pending-email { color: var(--muted); font-size: 13px; }
+.pending-actions { display: flex; gap: 8px; }
+
+/* ORDER TABLE */
+.order-status { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.order-status-dot { width: 7px; height: 7px; border-radius: 50%; }
+.order-status-dot.success { background: var(--success); }
+.order-status-dot.pending { background: var(--accent2); }
+.order-status-dot.cancelled { background: var(--danger); }
+
+/* ============================================
+   USER PROFILE SCREEN
+   ============================================ */
+#screen-profile { min-height: 100vh; }
+.profile-layout {
+  display: grid; grid-template-columns: 280px 1fr;
+  gap: 28px; padding: 100px 60px 60px;
+}
+.profile-sidebar {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px; height: fit-content; position: sticky; top: 100px;
+}
+.profile-avatar-wrap { text-align: center; margin-bottom: 20px; }
+.profile-avatar-big {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--accent); margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; border: 3px solid rgba(232,82,26,.3);
+}
+.profile-username { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
+.profile-email { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.profile-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border-radius: 10px;
+  color: var(--muted); font-size: 14px; cursor: pointer;
+  transition: all .2s; margin-bottom: 4px;
+}
+.profile-nav-item:hover { background: var(--border); color: var(--white); }
+.profile-nav-item.active { background: rgba(232,82,26,.1); color: var(--accent); }
+
+.profile-main { }
+.profile-section { display: none; }
+.profile-section.active { display: block; }
+.profile-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 20px; padding: 28px; margin-bottom: 20px;
+}
+.profile-card-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+.order-card {
+  background: #1a1815; border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px; margin-bottom: 14px;
+}
+.order-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.order-id { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+.order-products { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.order-product-thumb {
+  width: 56px; height: 56px; border-radius: 10px;
+  background: var(--border); overflow: hidden;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.order-footer { display: flex; align-items: center; justify-content: space-between; }
+.order-total-label { color: var(--muted); font-size: 13px; }
+.order-total-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--accent); }
+
+/* Checkout modal */
+.checkout-modal { max-width: 600px; }
+.checkout-section { margin-bottom: 24px; }
+.checkout-section-title {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+  margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.checkout-item {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.checkout-item-img {
+  width: 48px; height: 48px; border-radius: 10px;
+  background: var(--border); overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.checkout-item-name { font-size: 14px; font-weight: 500; }
+.checkout-item-qty { color: var(--muted); font-size: 13px; }
+.checkout-item-price { margin-left: auto; font-weight: 700; color: var(--accent); }
+.checkout-summary { background: #1a1815; border-radius: 12px; padding: 16px; }
+.checkout-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+.checkout-row.total {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.payment-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.payment-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px; border: 1.5px solid var(--border); border-radius: 10px;
+  cursor: pointer; transition: all .2s; font-size: 14px;
+}
+.payment-option.selected { border-color: var(--accent); background: rgba(232,82,26,.05); }
+.payment-option i { font-size: 18px; color: var(--muted); }
+.payment-option.selected i { color: var(--accent); }
+
+/* Notification dot */
+.notif-dot {
+  width: 8px; height: 8px; background: var(--accent);
+  border-radius: 50%; position: absolute; top: 8px; right: 8px;
+}
+
+/* Loading */
+.loading-spinner {
+  width: 20px; height: 20px; border: 2px solid rgba(255,255,255,.2);
+  border-top-color: var(--white); border-radius: 50%;
+  animation: spin .6s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero { grid-template-columns: 1fr; padding: 120px 32px 60px; }
+  .hero-visual { display: none; }
+  .products-section { padding: 60px 32px; }
+  .section-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .voucher-banner { margin: 0 32px 60px; flex-direction: column; align-items: flex-start; }
+  .footer { padding: 40px 32px 24px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .navbar { padding: 16px 32px; }
+  .nav-links { display: none; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .admin-main { margin-left: 0; padding: 20px; }
+  .admin-sidebar { display: none; }
+  .profile-layout { grid-template-columns: 1fr; padding: 100px 24px 40px; }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.fade-up { animation: fadeUp .5s ease forwards; }
+.fade-up-2 { animation: fadeUp .5s ease .1s both; }
+.fade-up-3 { animation: fadeUp .5s ease .2s both; }
+.fade-up-4 { animation: fadeUp .5s ease .3s both; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== CART OVERLAY ===== -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- ===== CART SIDEBAR ===== -->
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>🛒 Keranjang</h3>
+    <button class="cart-close-btn" onclick="closeCart()"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-voucher">
+      <input type="text" id="cartVoucherInput" placeholder="KODE VOUCHER" style="text-transform:uppercase">
+      <button class="btn btn-sm btn-secondary" onclick="applyCartVoucher()">Pakai</button>
+    </div>
+    <div class="cart-totals" id="cartTotals"></div>
+    <button class="btn btn-primary btn-full" onclick="openCheckout()"><i class="fa fa-credit-card"></i> Checkout</button>
+  </div>
+</div>
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal auth-modal">
+    <button class="modal-close" onclick="closeModal('authModal')"><i class="fa fa-times"></i></button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Masuk</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Daftar</button>
+    </div>
+    <div class="auth-content active" id="auth-login">
+      <h3 style="margin-bottom:6px;font-size:22px">Selamat datang kembali!</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Masuk untuk melanjutkan belanja</p>
+      <button class="btn btn-social" onclick="socialLogin('google')"><i class="fab fa-google" style="color:#EA4335"></i> Lanjutkan dengan Google</button>
+      <button class="btn btn-social" onclick="socialLogin('facebook')"><i class="fab fa-facebook" style="color:#1877F2"></i> Lanjutkan dengan Facebook</button>
+      <button class="btn btn-social" onclick="socialLogin('instagram')"><i class="fab fa-instagram" style="color:#E1306C"></i> Lanjutkan dengan Instagram</button>
+      <div class="form-divider">atau dengan email</div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="nama@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="loginPass" placeholder="••••••••">
+      </div>
+      <div class="forgot-link" onclick="showForgotPassword()">Lupa password?</div>
+      <button class="btn btn-primary btn-full" onclick="handleLogin()"><i class="fa fa-sign-in-alt"></i> Masuk</button>
+    </div>
+    <div class="auth-content" id="auth-register">
+      <h3 style="margin-bottom:6px;font-size:22px">Buat akun baru</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Bergabunglah dengan IGS Store</p>
+      <button class="btn btn-social" onclick="socialLogin('google')"><i class="fab fa-google" style="color:#EA4335"></i> Daftar dengan Google</button>
+      <button class="btn btn-social" onclick="socialLogin('facebook')"><i class="fab fa-facebook" style="color:#1877F2"></i> Daftar dengan Facebook</button>
+      <button class="btn btn-social" onclick="socialLogin('instagram')"><i class="fab fa-instagram" style="color:#E1306C"></i> Daftar dengan Instagram</button>
+      <div class="form-divider">atau dengan email</div>
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" class="form-input" id="regName" placeholder="Nama kamu">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="nama@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="regPass" placeholder="Min. 8 karakter">
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleRegister()"><i class="fa fa-user-plus"></i> Buat Akun</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRODUCT DETAIL MODAL ===== -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal" style="max-width:800px;padding:0;overflow:hidden">
+    <button class="modal-close" style="top:16px;right:16px;z-index:10" onclick="closeModal('productModal')"><i class="fa fa-times"></i></button>
+    <div id="productModalContent" style="padding:36px"></div>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT MODAL ===== -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal checkout-modal" style="max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeModal('checkoutModal')"><i class="fa fa-times"></i></button>
+    <h3 style="font-size:22px;margin-bottom:24px">Selesaikan Pesanan</h3>
+    <div class="checkout-section">
+      <div class="checkout-section-title">📦 Produk Dipesan</div>
+      <div id="checkoutItems"></div>
+    </div>
+    <div class="checkout-section">
+      <div class="checkout-section-title">📍 Alamat Pengiriman</div>
+      <div class="product-form-grid">
+        <div class="form-group">
+          <label class="form-label">Nama Penerima</label>
+          <input class="form-input" id="shipName" placeholder="Nama lengkap">
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. HP</label>
+          <input class="form-input" id="shipPhone" placeholder="08xx-xxxx-xxxx">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Alamat Lengkap</label>
+          <textarea class="form-input" id="shipAddress" placeholder="Jl. ... No. ..., RT/RW, Kelurahan, Kecamatan, Kota, Provinsi, Kode Pos"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="checkout-section">
+      <div class="checkout-section-title">💳 Metode Pembayaran</div>
+      <div class="payment-methods" id="paymentMethods">
+        <div class="payment-option selected" onclick="selectPayment(this,'transfer')"><i class="fa fa-university"></i> Transfer Bank</div>
+        <div class="payment-option" onclick="selectPayment(this,'wallet')"><i class="fa fa-wallet"></i> E-Wallet</div>
+        <div class="payment-option" onclick="selectPayment(this,'cod')"><i class="fa fa-truck"></i> COD</div>
+        <div class="payment-option" onclick="selectPayment(this,'cc')"><i class="fa fa-credit-card"></i> Kartu Kredit</div>
+      </div>
+    </div>
+    <div class="checkout-section">
+      <div class="checkout-section-title">📊 Ringkasan</div>
+      <div class="checkout-summary" id="checkoutSummary"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="placeOrder()" style="margin-top:8px"><i class="fa fa-check-circle"></i> Buat Pesanan</button>
+  </div>
+</div>
+
+<!-- ===== ADD/EDIT PRODUCT MODAL ===== -->
+<div class="modal-overlay" id="productFormModal">
+  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeModal('productFormModal')"><i class="fa fa-times"></i></button>
+    <h3 id="productFormTitle" style="font-size:20px;margin-bottom:24px">Tambah Produk</h3>
+    <input type="hidden" id="editProductId">
+    <div class="product-form-grid">
+      <div class="form-group full">
+        <label class="form-label">Nama Produk *</label>
+        <input class="form-input" id="pName" placeholder="Masukkan nama produk">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Kategori *</label>
+        <select class="form-input" id="pCategory">
+          <option value="">Pilih kategori</option>
+          <option value="Elektronik">Elektronik</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Aksesoris">Aksesoris</option>
+          <option value="Olahraga">Olahraga</option>
+          <option value="Kecantikan">Kecantikan</option>
+          <option value="Makanan">Makanan</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Harga (Rp) *</label>
+        <input class="form-input" id="pPrice" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Diskon (%)</label>
+        <input class="form-input" id="pDiscount" type="number" placeholder="0" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stok *</label>
+        <input class="form-input" id="pStock" type="number" placeholder="0">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Emoji / Ikon Produk</label>
+        <input class="form-input" id="pEmoji" placeholder="🎧 (copy paste emoji)">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Deskripsi</label>
+        <textarea class="form-input" id="pDesc" placeholder="Deskripsi produk..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Label Khusus</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="pIsNew"> Baru
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="pIsFeatured"> Unggulan
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="pIsHot"> Hot
+          </label>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('productFormModal')">Batal</button>
+      <button class="btn btn-admin" style="flex:1" onclick="saveProduct()"><i class="fa fa-save"></i> Simpan Produk</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD VOUCHER MODAL ===== -->
+<div class="modal-overlay" id="voucherFormModal">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('voucherFormModal')"><i class="fa fa-times"></i></button>
+    <h3 id="voucherFormTitle" style="font-size:20px;margin-bottom:24px">Buat Voucher</h3>
+    <input type="hidden" id="editVoucherId">
+    <div class="form-group">
+      <label class="form-label">Kode Voucher *</label>
+      <input class="form-input" id="vCode" placeholder="IGSSTORE20" style="text-transform:uppercase;letter-spacing:2px;font-weight:700">
+    </div>
+    <div class="product-form-grid">
+      <div class="form-group">
+        <label class="form-label">Tipe Diskon</label>
+        <select class="form-input" id="vType">
+          <option value="percent">Persen (%)</option>
+          <option value="fixed">Nominal (Rp)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nilai Diskon *</label>
+        <input class="form-input" id="vValue" type="number" placeholder="20">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Min. Pembelian (Rp)</label>
+        <input class="form-input" id="vMinOrder" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Batas Penggunaan</label>
+        <input class="form-input" id="vLimit" type="number" placeholder="100">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Berlaku Sampai</label>
+        <input class="form-input" id="vExpiry" type="date">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('voucherFormModal')">Batal</button>
+      <button class="btn btn-admin" style="flex:1" onclick="saveVoucher()"><i class="fa fa-tag"></i> Simpan Voucher</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN LOGIN MODAL ===== -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeModal('adminLoginModal')"><i class="fa fa-times"></i></button>
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:56px;height:56px;background:rgba(108,99,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;color:var(--admin-accent)"><i class="fa fa-shield-alt"></i></div>
+      <h3 style="font-size:20px">Admin Login</h3>
+      <p style="color:var(--muted);font-size:13px;margin-top:6px">Akses panel administrasi IGS Store</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Admin</label>
+      <input class="form-input" id="adminEmail" placeholder="admin@igsstore.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="adminPass" placeholder="••••••••">
+    </div>
+    <button class="btn btn-admin btn-full" onclick="handleAdminLogin()"><i class="fa fa-sign-in-alt"></i> Masuk sebagai Admin</button>
+    <div class="form-divider">atau</div>
+    <p style="text-align:center;font-size:13px;color:var(--muted)">Belum punya akun admin? <a onclick="showAdminRegister()" style="color:var(--admin-accent);cursor:pointer">Daftar & minta verifikasi</a></p>
+  </div>
+</div>
+
+<!-- ===== ADMIN REGISTER MODAL ===== -->
+<div class="modal-overlay" id="adminRegModal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeModal('adminRegModal')"><i class="fa fa-times"></i></button>
+    <div style="margin-bottom:24px">
+      <h3 style="font-size:20px;margin-bottom:6px">Daftar Akun Admin</h3>
+      <p style="color:var(--muted);font-size:13px">Pendaftaran memerlukan verifikasi dari pemilik website sebelum akun diaktifkan.</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nama Lengkap *</label>
+      <input class="form-input" id="adminRegName" placeholder="Nama admin">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email *</label>
+      <input class="form-input" id="adminRegEmail" placeholder="admin@email.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password *</label>
+      <input class="form-input" type="password" id="adminRegPass" placeholder="Min. 8 karakter">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Alasan Mendaftar</label>
+      <textarea class="form-input" id="adminRegReason" placeholder="Jelaskan peran Anda..." style="min-height:70px"></textarea>
+    </div>
+    <div style="background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--accent2)">
+      <i class="fa fa-info-circle"></i> Akun Anda akan berstatus <strong>pending</strong> hingga disetujui oleh pemilik website.
+    </div>
+    <button class="btn btn-admin btn-full" onclick="handleAdminRegister()"><i class="fa fa-paper-plane"></i> Kirim Permintaan</button>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN: HOME
+     ============================================ -->
+<div id="screen-home" class="screen active">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo"><span>IGS</span>Store</div>
+    <div class="nav-links">
+      <a onclick="scrollToProducts()" class="active">Produk</a>
+      <a onclick="scrollToVoucher()">Voucher</a>
+      <a onclick="showScreen('screen-profile')" id="navProfileLink" style="display:none">Pesanan Saya</a>
+    </div>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openCart()" id="cartBtnEl">
+        <i class="fa fa-shopping-bag"></i>
+        <span class="cart-count" id="cartCountBadge" style="display:none">0</span>
+      </button>
+      <div class="user-menu" id="userMenuEl" style="display:none">
+        <div class="user-avatar" id="userAvatarEl" onclick="toggleUserMenu()"></div>
+        <div class="user-dropdown" id="userDropdown">
+          <a onclick="showScreen('screen-profile');toggleUserMenu()"><i class="fa fa-user"></i> Profil Saya</a>
+          <a onclick="showScreen('screen-profile');toggleUserMenu()"><i class="fa fa-box"></i> Pesanan</a>
+          <a onclick="handleLogout()" class="danger"><i class="fa fa-sign-out-alt"></i> Keluar</a>
+        </div>
+      </div>
+      <div id="guestActions" style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="openAuthModal()">Masuk</button>
+        <button class="btn btn-primary btn-sm" onclick="openAuthModal()">Daftar</button>
+      </div>
+      <button class="btn btn-admin btn-sm" onclick="openAdminLogin()" id="adminLoginBtn">
+        <i class="fa fa-lock"></i> Admin
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow fade-up"><i class="fa fa-bolt"></i> Toko Terpercaya #1 di Indonesia</div>
+      <h1 class="hero-title fade-up-2">Belanja <span>Cerdas</span>,<br>Hidup Lebih Baik.</h1>
+      <p class="hero-desc fade-up-3">IGS Store hadir dengan ribuan produk pilihan terbaik. Kualitas premium, harga bersahabat, pengiriman cepat ke seluruh Indonesia.</p>
+      <div class="hero-actions fade-up-4">
+        <button class="btn btn-primary" onclick="scrollToProducts()"><i class="fa fa-shopping-bag"></i> Belanja Sekarang</button>
+        <button class="btn btn-secondary" onclick="scrollToVoucher()"><i class="fa fa-tag"></i> Lihat Promo</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span id="statProducts">0</span>
+          <small>Produk Tersedia</small>
+        </div>
+        <div class="hero-stat">
+          <span id="statUsers">0</span>
+          <small>Pelanggan Aktif</small>
+        </div>
+        <div class="hero-stat">
+          <span id="statOrders">0</span>
+          <small>Pesanan Terproses</small>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-float" style="top:5%;left:-10px">
+        <div class="float-label">Penjualan Hari Ini</div>
+        <div class="float-val green">+247 pesanan</div>
+      </div>
+      <div class="hero-card-main">
+        <div class="product-img-placeholder" style="height:180px;background:#1a1815;border-radius:0;font-size:56px">🎧</div>
+        <div class="card-info">
+          <div class="card-name">Premium Headphones Pro</div>
+          <div class="card-price">Rp 1.250.000</div>
+          <div style="margin-top:8px"><span class="badge badge-orange">Terlaris</span></div>
+        </div>
+      </div>
+      <div class="hero-card-float" style="bottom:10%;right:-10px">
+        <div class="float-label">Voucher Aktif</div>
+        <div class="float-val orange">HEMAT 30%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee" id="marqueeEl"></div>
+  </div>
+
+  <!-- PRODUCTS SECTION -->
+  <section class="products-section" id="productsSection">
+    <div class="section-header">
+      <div>
+        <div style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Koleksi Kami</div>
+        <h2 class="section-title">Produk <span>Pilihan</span></h2>
+      </div>
+      <div>
+        <div class="filter-tabs" id="filterTabs"></div>
+      </div>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </section>
+
+  <!-- VOUCHER BANNER -->
+  <div class="voucher-banner" id="voucherSection">
+    <div class="voucher-banner-text">
+      <h3>🎁 Punya Kode Voucher?</h3>
+      <p>Masukkan kode voucher untuk mendapatkan diskon spesial di checkout!</p>
+    </div>
+    <div class="voucher-code-input">
+      <input type="text" placeholder="IGSSTORE10" id="herVoucherInput" style="text-transform:uppercase">
+      <button class="btn btn-primary" onclick="applyHeroVoucher()"><i class="fa fa-check"></i> Gunakan</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="nav-logo"><span>IGS</span>Store</span>
+        <p>Toko online terpercaya dengan ribuan produk pilihan berkualitas. Belanja mudah, aman, dan cepat.</p>
+        <div class="social-links" style="margin-top:20px">
+          <a class="social-link"><i class="fab fa-instagram"></i></a>
+          <a class="social-link"><i class="fab fa-facebook"></i></a>
+          <a class="social-link"><i class="fab fa-tiktok"></i></a>
+          <a class="social-link"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Belanja</h5>
+        <a>Semua Produk</a>
+        <a>Produk Baru</a>
+        <a>Promo</a>
+        <a>Best Seller</a>
+      </div>
+      <div class="footer-col">
+        <h5>Bantuan</h5>
+        <a>Cara Belanja</a>
+        <a>Pengiriman</a>
+        <a>Retur & Refund</a>
+        <a>Pusat Bantuan</a>
+      </div>
+      <div class="footer-col">
+        <h5>Tentang</h5>
+        <a>Tentang Kami</a>
+        <a>Kebijakan Privasi</a>
+        <a>Syarat & Ketentuan</a>
+        <a onclick="openAdminLogin()">Admin Login</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 IGS Store. All rights reserved.</span>
+      <span>Made with ❤️ in Indonesia</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================
+     SCREEN: ADMIN PANEL
+     ============================================ -->
+<div id="screen-admin" class="screen">
+  <div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <span class="nav-logo"><span>IGS</span>Store</span>
+        <div class="admin-badge"><span class="badge badge-purple"><i class="fa fa-shield-alt"></i> Admin Panel</span></div>
+      </div>
+      <nav class="admin-nav">
+        <button class="admin-nav-item active" onclick="switchAdminPage('dashboard')"><i class="fa fa-chart-bar"></i> Dashboard</button>
+        <button class="admin-nav-item" onclick="switchAdminPage('products')"><i class="fa fa-box"></i> Produk</button>
+        <button class="admin-nav-item" onclick="switchAdminPage('vouchers')"><i class="fa fa-tag"></i> Voucher</button>
+        <button class="admin-nav-item" onclick="switchAdminPage('orders')"><i class="fa fa-shopping-cart"></i> Pesanan</button>
+        <button class="admin-nav-item" onclick="switchAdminPage('users')"><i class="fa fa-users"></i> Pengguna</button>
+        <div class="admin-nav-divider"></div>
+        <button class="admin-nav-item" onclick="switchAdminPage('pending-admins')">
+          <i class="fa fa-user-clock"></i> Admin Pending
+          <span class="badge badge-gold" id="pendingBadge" style="margin-left:auto;font-size:10px"></span>
+        </button>
+      </nav>
+      <div class="admin-sidebar-footer">
+        <button class="admin-nav-item" onclick="showScreen('screen-home');setAdminBtn()"><i class="fa fa-store"></i> Lihat Toko</button>
+        <button class="admin-nav-item danger" style="color:var(--danger)" onclick="adminLogout()"><i class="fa fa-sign-out-alt"></i> Keluar</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-page-title" id="adminPageTitle">Dashboard</div>
+          <div style="color:var(--muted);font-size:13px;margin-top:4px">Selamat datang, <span id="adminNameDisplay"></span></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-admin btn-sm" onclick="openProductForm()"><i class="fa fa-plus"></i> Tambah Produk</button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD PAGE -->
+      <div class="admin-subpage active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon orange"><i class="fa fa-box"></i></div>
+              <span class="stat-change">+12%</span>
+            </div>
+            <div class="stat-value" id="dashStatProducts">0</div>
+            <div class="stat-label">Total Produk</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon purple"><i class="fa fa-users"></i></div>
+              <span class="stat-change">+8%</span>
+            </div>
+            <div class="stat-value" id="dashStatUsers">0</div>
+            <div class="stat-label">Total Pengguna</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon green"><i class="fa fa-shopping-cart"></i></div>
+              <span class="stat-change">+24%</span>
+            </div>
+            <div class="stat-value" id="dashStatOrders">0</div>
+            <div class="stat-label">Total Pesanan</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <div class="stat-icon gold"><i class="fa fa-money-bill-wave"></i></div>
+              <span class="stat-change">+18%</span>
+            </div>
+            <div class="stat-value" id="dashStatRevenue">Rp 0</div>
+            <div class="stat-label">Total Pendapatan</div>
+          </div>
+        </div>
+        <!-- Recent products table preview -->
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <span class="admin-table-title">Produk Terbaru</span>
+            <button class="btn btn-secondary btn-sm" onclick="switchAdminPage('products')">Lihat Semua</button>
+          </div>
+          <table><thead><tr>
+            <th>Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Status</th>
+          </tr></thead>
+          <tbody id="dashProductTable"></tbody></table>
+        </div>
+      </div>
+
+      <!-- PRODUCTS PAGE -->
+      <div class="admin-subpage" id="page-products">
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <span class="admin-table-title">Semua Produk</span>
+            <div class="admin-search"><i class="fa fa-search"></i><input placeholder="Cari produk..." id="searchProduct" oninput="renderAdminProducts()"></div>
+            <button class="btn btn-admin btn-sm" onclick="openProductForm()"><i class="fa fa-plus"></i> Tambah</button>
+          </div>
+          <table><thead><tr>
+            <th>Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Label</th><th>Aksi</th>
+          </tr></thead>
+          <tbody id="adminProductTable"></tbody></table>
+        </div>
+      </div>
+
+      <!-- VOUCHERS PAGE -->
+      <div class="admin-subpage" id="page-vouchers">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button class="btn btn-admin" onclick="openVoucherForm()"><i class="fa fa-plus"></i> Buat Voucher</button>
+        </div>
+        <div class="voucher-grid" id="adminVoucherGrid"></div>
+      </div>
+
+      <!-- ORDERS PAGE -->
+      <div class="admin-subpage" id="page-orders">
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <span class="admin-table-title">Semua Pesanan</span>
+            <div class="admin-search"><i class="fa fa-search"></i><input placeholder="Cari pesanan..."></div>
+          </div>
+          <table><thead><tr>
+            <th>ID Pesanan</th><th>Pelanggan</th><th>Produk</th><th>Total</th><th>Status</th><th>Tanggal</th>
+          </tr></thead>
+          <tbody id="adminOrderTable"></tbody></table>
+        </div>
+      </div>
+
+      <!-- USERS PAGE -->
+      <div class="admin-subpage" id="page-users">
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <span class="admin-table-title">Semua Pengguna</span>
+            <div class="admin-search"><i class="fa fa-search"></i><input placeholder="Cari pengguna..." id="searchUser" oninput="renderAdminUsers()"></div>
+          </div>
+          <table><thead><tr>
+            <th>Pengguna</th><th>Email</th><th>Status</th><th>Pesanan</th><th>Bergabung</th><th>Aksi</th>
+          </tr></thead>
+          <tbody id="adminUserTable"></tbody></table>
+        </div>
+      </div>
+
+      <!-- PENDING ADMINS PAGE -->
+      <div class="admin-subpage" id="page-pending-admins">
+        <div class="admin-table-wrap" style="padding:24px">
+          <div style="margin-bottom:20px">
+            <h3 style="font-size:18px;font-weight:800;margin-bottom:6px">Permintaan Admin Pending</h3>
+            <p style="color:var(--muted);font-size:14px">Tinjau dan setujui atau tolak permintaan akun admin baru.</p>
+          </div>
+          <div id="pendingAdminList"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============================================
+     SCREEN: USER PROFILE
+     ============================================ -->
+<div id="screen-profile" class="screen">
+  <!-- REUSE NAVBAR from home - we'll show it via JS -->
+  <nav class="navbar">
+    <div class="nav-logo" onclick="showScreen('screen-home')" style="cursor:pointer"><span>IGS</span>Store</div>
+    <div class="nav-links">
+      <a onclick="showScreen('screen-home')">← Kembali Belanja</a>
+    </div>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openCart()">
+        <i class="fa fa-shopping-bag"></i>
+        <span class="cart-count" id="cartCountBadge2" style="display:none">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="profile-layout">
+    <div class="profile-sidebar">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-big" id="profileAvatarBig"></div>
+        <div class="profile-username" id="profileUsername"></div>
+        <div class="profile-email" id="profileEmail"></div>
+        <div style="margin-top:8px"><span class="badge badge-green">Pengguna Aktif</span></div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px">
+        <div class="profile-nav-item active" onclick="switchProfileSection('orders')"><i class="fa fa-box"></i> Pesanan Saya</div>
+        <div class="profile-nav-item" onclick="switchProfileSection('account')"><i class="fa fa-user-cog"></i> Akun</div>
+        <div class="profile-nav-item" onclick="switchProfileSection('vouchers')"><i class="fa fa-tag"></i> Voucher Saya</div>
+        <div style="border-top:1px solid var(--border);margin:16px 0"></div>
+        <div class="profile-nav-item" style="color:var(--danger)" onclick="handleLogout()"><i class="fa fa-sign-out-alt"></i> Keluar</div>
+      </div>
+    </div>
+    <div class="profile-main">
+      <!-- ORDERS SECTION -->
+      <div class="profile-section active" id="section-orders">
+        <div class="profile-card">
+          <h3 class="profile-card-title">📦 Pesanan Saya</h3>
+          <div id="userOrderList"></div>
+        </div>
+      </div>
+      <!-- ACCOUNT SECTION -->
+      <div class="profile-section" id="section-account">
+        <div class="profile-card">
+          <h3 class="profile-card-title">⚙️ Informasi Akun</h3>
+          <div class="product-form-grid">
+            <div class="form-group">
+              <label class="form-label">Nama Lengkap</label>
+              <input class="form-input" id="editProfileName">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" id="editProfileEmail" disabled style="opacity:.5">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Alamat Default</label>
+              <textarea class="form-input" id="editProfileAddress" placeholder="Alamat pengiriman utama Anda..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. HP</label>
+              <input class="form-input" id="editProfilePhone" placeholder="08xx-xxxx-xxxx">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveProfile()"><i class="fa fa-save"></i> Simpan Perubahan</button>
+        </div>
+        <div class="profile-card">
+          <h3 class="profile-card-title">🔒 Keamanan</h3>
+          <div class="form-group">
+            <label class="form-label">Password Baru</label>
+            <input class="form-input" type="password" id="newPass" placeholder="Biarkan kosong jika tidak ingin ubah">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konfirmasi Password Baru</label>
+            <input class="form-input" type="password" id="confirmPass" placeholder="Ulangi password baru">
+          </div>
+          <button class="btn btn-secondary" onclick="changePassword()"><i class="fa fa-lock"></i> Ubah Password</button>
+        </div>
+      </div>
+      <!-- VOUCHERS SECTION -->
+      <div class="profile-section" id="section-vouchers">
+        <div class="profile-card">
+          <h3 class="profile-card-title">🎟️ Voucher Tersedia</h3>
+          <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Klaim voucher berikut untuk digunakan saat checkout</p>
+          <div class="voucher-grid" id="userVoucherGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+// ===== STATE =====
+let state = {
+  currentUser: null,
+  currentAdmin: null,
+  products: [],
+  vouchers: [],
+  users: [],
+  orders: [],
+  pendingAdmins: [],
+  admins: [],
+  cart: [],
+  appliedVoucher: null,
+  wishlist: [],
+  activeFilter: 'Semua',
+  selectedPayment: 'transfer',
+};
+
+// ===== INITIAL DATA =====
+function initData() {
+  state.admins = JSON.parse(localStorage.getItem('igs_admins') || '[]');
+  if (state.admins.length === 0) {
+    state.admins = [{ id: 'a1', name: 'Super Admin', email: 'admin@igsstore.com', password: 'admin123', role: 'super', status: 'active', createdAt: new Date().toISOString() }];
+    saveAdmins();
+  }
+  state.products = JSON.parse(localStorage.getItem('igs_products') || '[]');
+  if (state.products.length === 0) {
+    state.products = [
+      { id: 'p1', name: 'Wireless Headphones Pro', category: 'Elektronik', price: 1250000, discount: 10, stock: 45, emoji: '🎧', desc: 'Headphone premium dengan noise cancelling terbaik. Baterai tahan 30 jam, kenyamanan seharian.', isNew: true, isFeatured: true, isHot: false, rating: 4.8, sold: 320 },
+      { id: 'p2', name: 'Sneakers Urban Classic', category: 'Fashion', price: 850000, discount: 0, stock: 120, emoji: '👟', desc: 'Sneakers stylish cocok untuk segala aktivitas. Material premium, sol anti-slip.', isNew: false, isFeatured: true, isHot: true, rating: 4.6, sold: 580 },
+      { id: 'p3', name: 'Smart Watch Series 8', category: 'Elektronik', price: 2350000, discount: 15, stock: 30, emoji: '⌚', desc: 'Smartwatch canggih dengan GPS, monitor detak jantung, SpO2, dan layar AMOLED.', isNew: true, isFeatured: false, isHot: true, rating: 4.9, sold: 210 },
+      { id: 'p4', name: 'Skincare Set Premium', category: 'Kecantikan', price: 450000, discount: 20, stock: 200, emoji: '💄', desc: 'Paket perawatan kulit lengkap. Cocok untuk semua jenis kulit, formula alami.', isNew: false, isFeatured: true, isHot: false, rating: 4.7, sold: 890 },
+      { id: 'p5', name: 'Tas Ransel Laptop 15"', category: 'Aksesoris', price: 320000, discount: 0, stock: 75, emoji: '🎒', desc: 'Ransel multifungsi dengan ruang laptop 15 inch, port USB, waterproof.', isNew: false, isFeatured: false, isHot: false, rating: 4.5, sold: 430 },
+      { id: 'p6', name: 'Protein Whey Premium', category: 'Olahraga', price: 580000, discount: 5, stock: 60, emoji: '💪', desc: 'Protein whey berkualitas tinggi, 25g protein per serving. Tersedia 5 rasa.', isNew: true, isFeatured: false, isHot: true, rating: 4.8, sold: 165 },
+      { id: 'p7', name: 'Kemeja Flannel Unisex', category: 'Fashion', price: 195000, discount: 0, stock: 300, emoji: '👕', desc: 'Kemeja flannel kualitas premium, tersedia berbagai warna dan ukuran S-XL.', isNew: false, isFeatured: false, isHot: false, rating: 4.4, sold: 720 },
+      { id: 'p8', name: 'Kopi Arabika Gayo 500g', category: 'Makanan', price: 125000, discount: 0, stock: 500, emoji: '☕', desc: 'Kopi arabika asli dari Gayo, Aceh. Roast medium, aroma kuat, rasa fruity.', isNew: false, isFeatured: true, isHot: false, rating: 4.9, sold: 1200 },
+    ];
+    saveProducts();
+  }
+  state.vouchers = JSON.parse(localStorage.getItem('igs_vouchers') || '[]');
+  if (state.vouchers.length === 0) {
+    state.vouchers = [
+      { id: 'v1', code: 'IGSSTORE10', type: 'percent', value: 10, minOrder: 100000, limit: 100, used: 23, expiry: '2025-12-31', isActive: true },
+      { id: 'v2', code: 'WELCOME50K', type: 'fixed', value: 50000, minOrder: 200000, limit: 50, used: 12, expiry: '2025-11-30', isActive: true },
+      { id: 'v3', code: 'FLASH30', type: 'percent', value: 30, minOrder: 500000, limit: 20, used: 20, expiry: '2025-10-15', isActive: false },
+    ];
+    saveVouchers();
+  }
+  state.users = JSON.parse(localStorage.getItem('igs_users') || '[]');
+  state.orders = JSON.parse(localStorage.getItem('igs_orders') || '[]');
+  state.pendingAdmins = JSON.parse(localStorage.getItem('igs_pending_admins') || '[]');
+
+  // Session
+  const savedUser = localStorage.getItem('igs_session_user');
+  const savedAdmin = localStorage.getItem('igs_session_admin');
+  if (savedUser) { state.currentUser = JSON.parse(savedUser); updateUserUI(); }
+  if (savedAdmin) { state.currentAdmin = JSON.parse(savedAdmin); }
+}
+
+function saveProducts() { localStorage.setItem('igs_products', JSON.stringify(state.products)); }
+function saveVouchers() { localStorage.setItem('igs_vouchers', JSON.stringify(state.vouchers)); }
+function saveUsers() { localStorage.setItem('igs_users', JSON.stringify(state.users)); }
+function saveOrders() { localStorage.setItem('igs_orders', JSON.stringify(state.orders)); }
+function saveAdmins() { localStorage.setItem('igs_admins', JSON.stringify(state.admins)); }
+function savePendingAdmins() { localStorage.setItem('igs_pending_admins', JSON.stringify(state.pendingAdmins)); }
+
+// ===== SCREEN =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'screen-profile') loadProfileScreen();
+  if (id === 'screen-admin') loadAdminScreen();
+}
+
+// ===== TOAST =====
+function toast(msg, type='info', icon='') {
+  const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+  const colors = { success: 'var(--success)', error: 'var(--danger)', info: 'var(--accent)' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fa ${icon || icons[type]}" style="color:${colors[type]}"></i> <span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => { el.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ===== MODAL =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ===== AUTH =====
+function openAuthModal() { openModal('authModal'); }
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.querySelectorAll('.auth-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('auth-'+tab).classList.add('active');
+}
+
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) return toast('Isi email dan password!', 'error');
+  const user = state.users.find(u => u.email === email && u.password === pass);
+  if (!user) return toast('Email atau password salah!', 'error');
+  if (user.status === 'banned') return toast('Akun Anda telah diblokir!', 'error');
+  loginUser(user);
+}
+
+function handleRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  if (!name || !email || !pass) return toast('Semua field harus diisi!', 'error');
+  if (pass.length < 8) return toast('Password minimal 8 karakter!', 'error');
+  if (state.users.find(u => u.email === email)) return toast('Email sudah terdaftar!', 'error');
+  const user = { id: 'u' + Date.now(), name, email, password: pass, status: 'active', createdAt: new Date().toISOString(), address: '', phone: '', orders: [] };
+  state.users.push(user); saveUsers();
+  loginUser(user);
+  toast(`Selamat datang, ${name}! 🎉`, 'success');
+}
+
+function socialLogin(provider) {
+  const names = { google: 'Google User', facebook: 'Facebook User', instagram: 'IGS User' };
+  const emails = { google: 'user@gmail.com', facebook: 'user@fb.com', instagram: 'user@ig.com' };
+  const icons = { google: '🔴', facebook: '🔵', instagram: '🟣' };
+  let user = state.users.find(u => u.email === emails[provider]);
+  if (!user) {
+    user = { id: 'u' + Date.now(), name: names[provider], email: emails[provider], password: '', status: 'active', provider, createdAt: new Date().toISOString(), address: '', phone: '', orders: [] };
+    state.users.push(user); saveUsers();
+  }
+  loginUser(user);
+  toast(`Berhasil masuk dengan ${provider.charAt(0).toUpperCase()+provider.slice(1)}!`, 'success');
+}
+
+function loginUser(user) {
+  state.currentUser = user;
+  localStorage.setItem('igs_session_user', JSON.stringify(user));
+  closeModal('authModal');
+  updateUserUI();
+  toast(`Halo, ${user.name}! 👋`, 'success');
+}
+
+function updateUserUI() {
+  const u = state.currentUser;
+  if (u) {
+    document.getElementById('guestActions').style.display = 'none';
+    document.getElementById('userMenuEl').style.display = 'flex';
+    document.getElementById('navProfileLink').style.display = 'inline';
+    document.getElementById('userAvatarEl').textContent = u.name.charAt(0).toUpperCase();
+    // profile screen
+    const initials = u.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const pbig = document.getElementById('profileAvatarBig');
+    if (pbig) pbig.textContent = initials;
+    const pun = document.getElementById('profileUsername');
+    if (pun) pun.textContent = u.name;
+    const pem = document.getElementById('profileEmail');
+    if (pem) pem.textContent = u.email;
+    const pen = document.getElementById('editProfileName');
+    if (pen) pen.value = u.name;
+    const pee = document.getElementById('editProfileEmail');
+    if (pee) pee.value = u.email;
+    const pep = document.getElementById('editProfilePhone');
+    if (pep) pep.value = u.phone || '';
+    const pea = document.getElementById('editProfileAddress');
+    if (pea) pea.value = u.address || '';
+  } else {
+    document.getElementById('guestActions').style.display = 'flex';
+    document.getElementById('userMenuEl').style.display = 'none';
+    document.getElementById('navProfileLink').style.display = 'none';
+  }
+}
+
+function handleLogout() {
+  state.currentUser = null;
+  localStorage.removeItem('igs_session_user');
+  state.cart = [];
+  updateCartUI();
+  updateUserUI();
+  showScreen('screen-home');
+  toast('Berhasil keluar!', 'info');
+}
+
+function toggleUserMenu() {
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.user-menu')) document.getElementById('userDropdown')?.classList.remove('open');
+});
+
+function showForgotPassword() { toast('Link reset password telah dikirim ke email Anda.', 'info'); }
+
+// ===== ADMIN AUTH =====
+function openAdminLogin() { openModal('adminLoginModal'); }
+function showAdminRegister() { closeModal('adminLoginModal'); openModal('adminRegModal'); }
+
+function handleAdminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  if (!email || !pass) return toast('Isi email dan password!', 'error');
+  const admin = state.admins.find(a => a.email === email && a.password === pass && a.status === 'active');
+  if (!admin) return toast('Kredensial admin salah atau akun belum diverifikasi!', 'error');
+  state.currentAdmin = admin;
+  localStorage.setItem('igs_session_admin', JSON.stringify(admin));
+  closeModal('adminLoginModal');
+  document.getElementById('adminLoginBtn').style.display = 'none';
+  toast(`Selamat datang, Admin ${admin.name}! 🛡️`, 'success');
+  showScreen('screen-admin');
+  loadAdminScreen();
+}
+
+function handleAdminRegister() {
+  const name = document.getElementById('adminRegName').value.trim();
+  const email = document.getElementById('adminRegEmail').value.trim();
+  const pass = document.getElementById('adminRegPass').value;
+  const reason = document.getElementById('adminRegReason').value.trim();
+  if (!name || !email || !pass) return toast('Isi semua field wajib!', 'error');
+  if (state.admins.find(a => a.email === email) || state.pendingAdmins.find(a => a.email === email))
+    return toast('Email sudah digunakan!', 'error');
+  state.pendingAdmins.push({ id: 'pa' + Date.now(), name, email, password: pass, reason, requestedAt: new Date().toISOString() });
+  savePendingAdmins();
+  closeModal('adminRegModal');
+  toast('Permintaan terkirim! Tunggu verifikasi dari pemilik website.', 'success');
+}
+
+function adminLogout() {
+  state.currentAdmin = null;
+  localStorage.removeItem('igs_session_admin');
+  showScreen('screen-home');
+  setAdminBtn();
+  toast('Berhasil keluar dari panel admin.', 'info');
+}
+
+function setAdminBtn() {
+  document.getElementById('adminLoginBtn').style.display = state.currentAdmin ? 'none' : '';
+}
+
+// ===== PRODUCTS RENDERING =====
+function renderProducts(filter = state.activeFilter) {
+  state.activeFilter = filter;
+  const grid = document.getElementById('productGrid');
+  let filtered = filter === 'Semua' ? state.products : state.products.filter(p => p.category === filter);
+  if (filtered.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)"><i class="fa fa-box-open" style="font-size:48px;opacity:.3;display:block;margin-bottom:16px"></i>Tidak ada produk</div>'; return; }
+  grid.innerHTML = filtered.map(p => {
+    const finalPrice = p.discount ? Math.round(p.price * (1 - p.discount/100)) : p.price;
+    const badges = [];
+    if (p.isNew) badges.push('<span class="badge badge-green">Baru</span>');
+    if (p.isFeatured) badges.push('<span class="badge badge-orange">Unggulan</span>');
+    if (p.isHot) badges.push('<span class="badge badge-red">🔥 Hot</span>');
+    if (p.discount) badges.push(`<span class="badge badge-gold">-${p.discount}%</span>`);
+    const inWish = state.wishlist.includes(p.id);
+    return `<div class="product-card" onclick="openProductDetail('${p.id}')">
+      <div class="product-img-wrap">
+        <div class="product-img-placeholder">${p.emoji || '📦'}</div>
+        <div class="product-badges">${badges.join('')}</div>
+        <button class="product-wishlist ${inWish?'active':''}" onclick="event.stopPropagation();toggleWishlist('${p.id}',this)"><i class="fa${inWish?'s':'r'} fa-heart"></i></button>
+      </div>
+      <div class="product-info">
+        <div class="product-category">${p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="product-rating">★ ${p.rating}</div>
+          <span style="color:var(--muted);font-size:12px">(${p.sold} terjual)</span>
+        </div>
+        <div class="product-stock" style="${p.stock < 10 ? 'color:var(--danger)' : ''}">${p.stock < 10 ? '⚠️ Sisa' : 'Stok'}: ${p.stock}</div>
+        <div class="product-price-row">
+          <div><span class="product-price">${formatRp(finalPrice)}</span>${p.discount ? `<span class="product-price-old">${formatRp(p.price)}</span>` : ''}</div>
+          <button class="add-to-cart-btn" onclick="event.stopPropagation();addToCart('${p.id}')"><i class="fa fa-plus"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFilters() {
+  const cats = ['Semua', ...new Set(state.products.map(p => p.category))];
+  document.getElementById('filterTabs').innerHTML = cats.map(c =>
+    `<button class="filter-tab ${c===state.activeFilter?'active':''}" onclick="renderProducts('${c}');renderFilters()">${c}</button>`
+  ).join('');
+}
+
+function toggleWishlist(pid, btn) {
+  const idx = state.wishlist.indexOf(pid);
+  if (idx >= 0) { state.wishlist.splice(idx,1); btn.classList.remove('active'); btn.innerHTML = '<i class="far fa-heart"></i>'; toast('Dihapus dari wishlist', 'info'); }
+  else { state.wishlist.push(pid); btn.classList.add('active'); btn.innerHTML = '<i class="fas fa-heart"></i>'; toast('Ditambahkan ke wishlist ❤️', 'success'); }
+}
+
+// ===== PRODUCT DETAIL =====
+function openProductDetail(pid) {
+  const p = state.products.find(x => x.id === pid);
+  if (!p) return;
+  const finalPrice = p.discount ? Math.round(p.price * (1 - p.discount/100)) : p.price;
+  let qty = 1;
+  document.getElementById('productModalContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+      <div class="product-modal-img"><div class="placeholder-icon">${p.emoji || '📦'}</div></div>
+      <div class="product-modal-info">
+        <div class="product-modal-category">${p.category}</div>
+        <div class="product-modal-name">${p.name}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="color:var(--accent2)">★ ${p.rating}</span>
+          <span style="color:var(--muted);font-size:13px">${p.sold} terjual</span>
+          <span style="color:var(--muted);font-size:13px">|</span>
+          <span style="font-size:13px;${p.stock<10?'color:var(--danger)':'color:var(--muted)'}">Stok: ${p.stock}</span>
+        </div>
+        <div class="product-modal-price">${formatRp(finalPrice)}${p.discount?`<span style="font-size:16px;color:var(--muted);text-decoration:line-through;margin-left:8px">${formatRp(p.price)}</span>`:''}</div>
+        <p class="product-modal-desc">${p.desc || 'Tidak ada deskripsi.'}</p>
+        <div class="qty-control">
+          <button class="qty-control-btn" onclick="changeDetailQty(-1)">−</button>
+          <span id="detailQty" style="font-family:Syne,sans-serif;font-weight:800;font-size:18px;min-width:40px;text-align:center">1</span>
+          <button class="qty-control-btn" onclick="changeDetailQty(1)">+</button>
+          <span style="color:var(--muted);font-size:13px">Max ${p.stock}</span>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" style="flex:1" onclick="addToCartQty('${p.id}')"><i class="fa fa-cart-plus"></i> Tambah ke Keranjang</button>
+          <button class="btn btn-secondary" onclick="toggleWishlistModal('${p.id}')"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+    </div>`;
+  openModal('productModal');
+  window._detailQty = 1;
+  window._detailProduct = p;
+}
+
+function changeDetailQty(delta) {
+  const p = window._detailProduct;
+  window._detailQty = Math.max(1, Math.min(p.stock, (window._detailQty||1) + delta));
+  document.getElementById('detailQty').textContent = window._detailQty;
+}
+
+function addToCartQty(pid) {
+  const qty = window._detailQty || 1;
+  for (let i=0;i<qty;i++) addToCart(pid, true);
+  toast(`${qty} item ditambahkan ke keranjang 🛒`, 'success');
+  closeModal('productModal');
+  openCart();
+}
+
+function toggleWishlistModal(pid) {
+  const idx = state.wishlist.indexOf(pid);
+  if (idx>=0) { state.wishlist.splice(idx,1); toast('Dihapus dari wishlist','info'); }
+  else { state.wishlist.push(pid); toast('Ditambahkan ke wishlist ❤️','success'); }
+  renderProducts();
+}
+
+// ===== CART =====
+function addToCart(pid, silent=false) {
+  if (!state.currentUser) { openAuthModal(); toast('Masuk terlebih dahulu untuk berbelanja!', 'info'); return; }
+  const p = state.products.find(x => x.id === pid);
+  if (!p || p.stock <= 0) return toast('Stok habis!', 'error');
+  const existing = state.cart.find(c => c.pid === pid);
+  if (existing) {
+    if (existing.qty >= p.stock) return toast('Stok tidak mencukupi!', 'error');
+    existing.qty++;
+  } else { state.cart.push({ pid, qty: 1 }); }
+  updateCartUI();
+  if (!silent) toast(`${p.name} ditambahkan ke keranjang!`, 'success');
+}
+
+function removeFromCart(pid) {
+  state.cart = state.cart.filter(c => c.pid !== pid);
+  updateCartUI();
+}
+
+function changeQty(pid, delta) {
+  const item = state.cart.find(c => c.pid === pid);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  const p = state.products.find(x => x.id === pid);
+  if (p && item.qty > p.stock) { item.qty = p.stock; toast('Batas stok!', 'error'); }
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const total = state.cart.reduce((s,c) => s+c.qty, 0);
+  ['cartCountBadge','cartCountBadge2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = total; el.style.display = total > 0 ? 'flex' : 'none'; }
+  });
+  renderCartItems();
+  renderCartTotals();
+}
+
+function renderCartItems() {
+  const el = document.getElementById('cartItems');
+  if (!el) return;
+  if (state.cart.length === 0) {
+    el.innerHTML = `<div class="cart-empty"><i class="fa fa-shopping-bag"></i><p>Keranjang masih kosong</p><button class="btn btn-primary btn-sm" onclick="closeCart()">Mulai Belanja</button></div>`;
+    return;
+  }
+  el.innerHTML = state.cart.map(c => {
+    const p = state.products.find(x => x.id === c.pid);
+    if (!p) return '';
+    const price = p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price;
+    return `<div class="cart-item">
+      <div class="cart-item-img"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">${p.emoji||'📦'}</div></div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-price">${formatRp(price)}</div>
+        <div class="cart-item-controls">
+          <button class="qty-btn" onclick="changeQty('${c.pid}',-1)">−</button>
+          <span class="qty-display">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${c.pid}',1)">+</button>
+          <button class="cart-item-remove" onclick="removeFromCart('${c.pid}')"><i class="fa fa-trash"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCartTotals() {
+  const el = document.getElementById('cartTotals');
+  if (!el) return;
+  const subtotal = state.cart.reduce((s,c) => {
+    const p = state.products.find(x => x.id === c.pid);
+    if (!p) return s;
+    return s + (p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price) * c.qty;
+  }, 0);
+  let discount = 0;
+  const v = state.appliedVoucher;
+  if (v) {
+    if (subtotal >= (v.minOrder||0)) {
+      discount = v.type === 'percent' ? Math.round(subtotal*v.value/100) : v.value;
+    }
+  }
+  const total = Math.max(0, subtotal - discount);
+  el.innerHTML = `<div class="cart-total-row"><span>Subtotal</span><span>${formatRp(subtotal)}</span></div>
+    ${discount ? `<div class="cart-total-row"><span>Voucher <span class="badge badge-green">${v.code}</span></span><span class="discount">-${formatRp(discount)}</span></div>` : ''}
+    <div class="cart-total-row total"><span>Total</span><span>${formatRp(total)}</span></div>`;
+}
+
+function openCart() { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').classList.add('open'); }
+function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('open'); }
+
+function applyCartVoucher() {
+  const code = document.getElementById('cartVoucherInput').value.trim().toUpperCase();
+  applyVoucherCode(code);
+}
+function applyHeroVoucher() {
+  const code = document.getElementById('herVoucherInput').value.trim().toUpperCase();
+  applyVoucherCode(code);
+  if (state.appliedVoucher) openCart();
+}
+
+function applyVoucherCode(code) {
+  const v = state.vouchers.find(x => x.code === code && x.isActive);
+  if (!v) return toast('Kode voucher tidak valid!', 'error');
+  if (v.used >= v.limit) return toast('Voucher sudah habis!', 'error');
+  if (new Date(v.expiry) < new Date()) return toast('Voucher sudah kadaluarsa!', 'error');
+  const subtotal = state.cart.reduce((s,c) => {
+    const p = state.products.find(x => x.id === c.pid);
+    if (!p) return s;
+    return s + (p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price) * c.qty;
+  }, 0);
+  if (subtotal < (v.minOrder||0)) return toast(`Minimum pembelian ${formatRp(v.minOrder)} untuk voucher ini!`, 'error');
+  state.appliedVoucher = v;
+  renderCartTotals();
+  toast(`Voucher ${v.code} berhasil dipakai! Hemat ${v.type==='percent'?v.value+'%':formatRp(v.value)} 🎉`, 'success');
+}
+
+// ===== CHECKOUT =====
+function openCheckout() {
+  if (!state.currentUser) { closeCart(); openAuthModal(); return; }
+  if (state.cart.length === 0) return toast('Keranjang kosong!', 'error');
+  // Fill checkout items
+  const itemsEl = document.getElementById('checkoutItems');
+  itemsEl.innerHTML = state.cart.map(c => {
+    const p = state.products.find(x => x.id === c.pid);
+    if (!p) return '';
+    const price = p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price;
+    return `<div class="checkout-item">
+      <div class="checkout-item-img">${p.emoji||'📦'}</div>
+      <div><div class="checkout-item-name">${p.name}</div><div class="checkout-item-qty">x${c.qty}</div></div>
+      <div class="checkout-item-price">${formatRp(price*c.qty)}</div>
+    </div>`;
+  }).join('');
+  // Fill summary
+  const subtotal = state.cart.reduce((s,c) => {
+    const p = state.products.find(x => x.id === c.pid);
+    if (!p) return s;
+    return s + (p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price) * c.qty;
+  }, 0);
+  let discount = 0;
+  const v = state.appliedVoucher;
+  if (v) discount = v.type === 'percent' ? Math.round(subtotal*v.value/100) : v.value;
+  const ongkir = 15000;
+  const total = Math.max(0, subtotal - discount) + ongkir;
+  document.getElementById('checkoutSummary').innerHTML = `
+    <div class="checkout-row"><span>Subtotal</span><span>${formatRp(subtotal)}</span></div>
+    ${discount ? `<div class="checkout-row"><span>Diskon Voucher</span><span style="color:var(--success)">-${formatRp(discount)}</span></div>` : ''}
+    <div class="checkout-row"><span>Ongkir</span><span>${formatRp(ongkir)}</span></div>
+    <div class="checkout-row total"><span>Total Bayar</span><span>${formatRp(total)}</span></div>`;
+  // Pre-fill shipping
+  if (state.currentUser) {
+    document.getElementById('shipName').value = state.currentUser.name || '';
+    document.getElementById('shipPhone').value = state.currentUser.phone || '';
+    document.getElementById('shipAddress').value = state.currentUser.address || '';
+  }
+  closeCart();
+  openModal('checkoutModal');
+}
+
+function selectPayment(el, method) {
+  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedPayment = method;
+}
+
+function placeOrder() {
+  const name = document.getElementById('shipName').value.trim();
+  const phone = document.getElementById('shipPhone').value.trim();
+  const address = document.getElementById('shipAddress').value.trim();
+  if (!name || !phone || !address) return toast('Lengkapi informasi pengiriman!', 'error');
+  const subtotal = state.cart.reduce((s,c) => {
+    const p = state.products.find(x => x.id === c.pid);
+    return s + (p ? (p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price) * c.qty : 0);
+  }, 0);
+  let discount = 0;
+  const v = state.appliedVoucher;
+  if (v) discount = v.type === 'percent' ? Math.round(subtotal*v.value/100) : v.value;
+  const ongkir = 15000;
+  const total = Math.max(0, subtotal - discount) + ongkir;
+
+  // Reduce stock
+  state.cart.forEach(c => {
+    const p = state.products.find(x => x.id === c.pid);
+    if (p) p.stock = Math.max(0, p.stock - c.qty);
+  });
+  saveProducts();
+
+  // Update voucher usage
+  if (v) { const idx = state.vouchers.findIndex(x => x.id === v.id); if (idx>=0) state.vouchers[idx].used++; saveVouchers(); }
+
+  const order = {
+    id: 'ORD' + Date.now(),
+    userId: state.currentUser.id,
+    userName: state.currentUser.name,
+    userEmail: state.currentUser.email,
+    items: state.cart.map(c => { const p = state.products.find(x => x.id === c.pid); return { pid: c.pid, name: p?.name, emoji: p?.emoji, qty: c.qty, price: p ? (p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price) : 0 }; }),
+    shipping: { name, phone, address },
+    payment: state.selectedPayment,
+    voucher: v?.code || null,
+    subtotal, discount, ongkir, total,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+  };
+  state.orders.push(order); saveOrders();
+
+  // Add to user's orders
+  const userIdx = state.users.findIndex(u => u.id === state.currentUser.id);
+  if (userIdx >= 0) { if (!state.users[userIdx].orders) state.users[userIdx].orders = []; state.users[userIdx].orders.push(order.id); saveUsers(); }
+
+  state.cart = [];
+  state.appliedVoucher = null;
+  updateCartUI();
+  closeModal('checkoutModal');
+  toast(`Pesanan ${order.id} berhasil dibuat! 🎉`, 'success');
+  renderProducts();
+  showScreen('screen-profile');
+  switchProfileSection('orders');
+}
+
+// ===== PROFILE SCREEN =====
+function loadProfileScreen() {
+  updateUserUI();
+  renderUserOrders();
+  renderUserVouchers();
+}
+
+function switchProfileSection(id) {
+  document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  document.querySelectorAll('.profile-nav-item').forEach((n,i) => {
+    n.classList.toggle('active', ['orders','account','vouchers'][i] === id);
+  });
+  if (id === 'orders') renderUserOrders();
+  if (id === 'vouchers') renderUserVouchers();
+}
+
+function renderUserOrders() {
+  const el = document.getElementById('userOrderList');
+  if (!el) return;
+  const userOrders = state.orders.filter(o => o.userId === state.currentUser?.id);
+  if (userOrders.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fa fa-box-open" style="font-size:40px;opacity:.3;display:block;margin-bottom:12px"></i>Belum ada pesanan</div>';
+    return;
+  }
+  el.innerHTML = userOrders.slice().reverse().map(o => {
+    const statusMap = { pending: ['badge-gold','Menunggu Pembayaran'], processing: ['badge-purple','Diproses'], shipped: ['badge-green','Dikirim'], done: ['badge-green','Selesai'], cancelled: ['badge-red','Dibatalkan'] };
+    const [bc, bs] = statusMap[o.status] || ['badge-gold','Pending'];
+    return `<div class="order-card">
+      <div class="order-card-header">
+        <span class="order-id">#${o.id}</span>
+        <span class="badge ${bc}">${bs}</span>
+      </div>
+      <div class="order-products">${o.items.map(item => `<div class="order-product-thumb">${item.emoji||'📦'}</div>`).join('')}</div>
+      <div class="order-footer">
+        <div><div class="order-total-label">${new Date(o.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div class="order-total-label">${o.items.length} produk · ${o.items.reduce((s,i)=>s+i.qty,0)} item</div></div>
+        <div class="order-total-val">${formatRp(o.total)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderUserVouchers() {
+  const el = document.getElementById('userVoucherGrid');
+  if (!el) return;
+  const active = state.vouchers.filter(v => v.isActive && new Date(v.expiry) >= new Date() && v.used < v.limit);
+  if (active.length === 0) { el.innerHTML = '<p style="color:var(--muted);font-size:14px">Tidak ada voucher tersedia saat ini.</p>'; return; }
+  el.innerHTML = active.map(v => `<div class="voucher-card">
+    <div class="voucher-card-top">
+      <div>
+        <div class="voucher-code">${v.code}</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:4px">Min. ${formatRp(v.minOrder||0)}</div>
+      </div>
+      <div class="voucher-discount">${v.type==='percent'?v.value+'%':formatRp(v.value)}</div>
+    </div>
+    <div class="voucher-card-bot">
+      <div class="voucher-info-row"><span>Berlaku sampai</span><span>${new Date(v.expiry).toLocaleDateString('id-ID')}</span></div>
+      <div class="voucher-info-row"><span>Sisa kuota</span><span>${v.limit-v.used}/${v.limit}</span></div>
+      <button class="btn btn-primary btn-sm btn-full" onclick="useVoucherFromProfile('${v.code}')"><i class="fa fa-shopping-bag"></i> Gunakan Sekarang</button>
+    </div>
+  </div>`).join('');
+}
+
+function useVoucherFromProfile(code) {
+  applyVoucherCode(code);
+  showScreen('screen-home');
+  openCart();
+}
+
+function saveProfile() {
+  const name = document.getElementById('editProfileName').value.trim();
+  const phone = document.getElementById('editProfilePhone').value.trim();
+  const address = document.getElementById('editProfileAddress').value.trim();
+  if (!name) return toast('Nama tidak boleh kosong!', 'error');
+  const idx = state.users.findIndex(u => u.id === state.currentUser.id);
+  if (idx >= 0) {
+    state.users[idx] = { ...state.users[idx], name, phone, address };
+    state.currentUser = state.users[idx];
+    localStorage.setItem('igs_session_user', JSON.stringify(state.currentUser));
+    saveUsers();
+    updateUserUI();
+    toast('Profil berhasil diperbarui!', 'success');
+  }
+}
+
+function changePassword() {
+  const np = document.getElementById('newPass').value;
+  const cp = document.getElementById('confirmPass').value;
+  if (!np) return toast('Masukkan password baru!', 'error');
+  if (np.length < 8) return toast('Password minimal 8 karakter!', 'error');
+  if (np !== cp) return toast('Konfirmasi password tidak cocok!', 'error');
+  const idx = state.users.findIndex(u => u.id === state.currentUser.id);
+  if (idx >= 0) { state.users[idx].password = np; saveUsers(); }
+  document.getElementById('newPass').value = '';
+  document.getElementById('confirmPass').value = '';
+  toast('Password berhasil diubah!', 'success');
+}
+
+// ===== ADMIN PANEL =====
+function loadAdminScreen() {
+  document.getElementById('adminNameDisplay').textContent = state.currentAdmin?.name || '';
+  renderDashboard();
+  renderAdminProducts();
+  renderAdminVouchers();
+  renderAdminOrders();
+  renderAdminUsers();
+  renderPendingAdmins();
+}
+
+function switchAdminPage(page) {
+  document.querySelectorAll('.admin-subpage').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+  event.target.classList.add('active');
+  const titles = { dashboard:'Dashboard', products:'Manajemen Produk', vouchers:'Manajemen Voucher', orders:'Manajemen Pesanan', users:'Manajemen Pengguna', 'pending-admins':'Admin Pending' };
+  document.getElementById('adminPageTitle').textContent = titles[page] || page;
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'products') renderAdminProducts();
+  if (page === 'vouchers') renderAdminVouchers();
+  if (page === 'orders') renderAdminOrders();
+  if (page === 'users') renderAdminUsers();
+  if (page === 'pending-admins') renderPendingAdmins();
+}
+
+function renderDashboard() {
+  document.getElementById('dashStatProducts').textContent = state.products.length;
+  document.getElementById('dashStatUsers').textContent = state.users.length;
+  document.getElementById('dashStatOrders').textContent = state.orders.length;
+  const rev = state.orders.filter(o=>o.status!=='cancelled').reduce((s,o)=>s+o.total,0);
+  document.getElementById('dashStatRevenue').textContent = formatRp(rev);
+  // Hero stats
+  document.getElementById('statProducts').textContent = state.products.length + '+';
+  document.getElementById('statUsers').textContent = (state.users.length + 1200) + '+';
+  document.getElementById('statOrders').textContent = (state.orders.length + 3400) + '+';
+  // Recent products table
+  const tbody = document.getElementById('dashProductTable');
+  tbody.innerHTML = state.products.slice(-5).reverse().map(p => {
+    const price = p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price;
+    return `<tr><td><div class="td-product"><div class="td-img">${p.emoji||'📦'}</div><div><div class="td-name">${p.name}</div></div></div></td>
+      <td>${p.category}</td><td>${formatRp(price)}</td><td ${p.stock<10?'style="color:var(--danger)"':''}>${p.stock}</td>
+      <td>${p.isNew?'<span class="badge badge-green">Baru</span>':''}${p.isFeatured?'<span class="badge badge-orange">Unggulan</span>':''}</td></tr>`;
+  }).join('');
+  // Pending badge
+  const pb = document.getElementById('pendingBadge');
+  if (pb) pb.textContent = state.pendingAdmins.length > 0 ? state.pendingAdmins.length : '';
+}
+
+function renderAdminProducts() {
+  const q = (document.getElementById('searchProduct')?.value||'').toLowerCase();
+  const tbody = document.getElementById('adminProductTable');
+  const filtered = state.products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+  tbody.innerHTML = filtered.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Tidak ada produk</td></tr>' :
+    filtered.map(p => {
+      const price = p.discount ? Math.round(p.price*(1-p.discount/100)) : p.price;
+      const labels = [p.isNew?'<span class="badge badge-green">Baru</span>':'', p.isFeatured?'<span class="badge badge-orange">Unggulan</span>':'', p.isHot?'<span class="badge badge-red">Hot</span>':'', p.discount?`<span class="badge badge-gold">-${p.discount}%</span>`:''  ].filter(Boolean).join('');
+      return `<tr><td><div class="td-product"><div class="td-img">${p.emoji||'📦'}</div><div><div class="td-name">${p.name}</div><div class="td-cat">${p.category}</div></div></div></td>
+        <td>${p.category}</td>
+        <td>${formatRp(price)}${p.discount?`<br><small style="color:var(--muted);text-decoration:line-through">${formatRp(p.price)}</small>`:''}</td>
+        <td ${p.stock<10?'style="color:var(--danger);font-weight:700"':''}>${p.stock}</td>
+        <td>${labels||'<span style="color:var(--muted)">—</span>'}</td>
+        <td><div class="td-actions"><button class="btn btn-sm btn-secondary" onclick="editProduct('${p.id}')"><i class="fa fa-edit"></i></button><button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')"><i class="fa fa-trash"></i></button></div></td></tr>`;
+    }).join('');
+}
+
+function renderAdminVouchers() {
+  const el = document.getElementById('adminVoucherGrid');
+  el.innerHTML = state.vouchers.map(v => `<div class="voucher-card">
+    <div class="voucher-card-top">
+      <div>
+        <div class="voucher-code">${v.code}</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:4px">Min. ${formatRp(v.minOrder||0)}</div>
+      </div>
+      <div class="voucher-discount">${v.type==='percent'?v.value+'%':formatRp(v.value)}</div>
+    </div>
+    <div class="voucher-card-bot">
+      <div class="voucher-info-row"><span>Berlaku sampai</span><span>${new Date(v.expiry).toLocaleDateString('id-ID')}</span></div>
+      <div class="voucher-info-row"><span>Digunakan</span><span>${v.used}/${v.limit}</span></div>
+      <div class="voucher-info-row"><span>Status</span><span>${v.isActive&&new Date(v.expiry)>=new Date()&&v.used<v.limit?'<span class="badge badge-green">Aktif</span>':'<span class="badge badge-red">Nonaktif</span>'}</span></div>
+      <div class="voucher-actions">
+        <button class="btn btn-sm btn-secondary" style="flex:1" onclick="toggleVoucher('${v.id}')">${v.isActive?'Nonaktifkan':'Aktifkan'}</button>
+        <button class="btn btn-sm btn-secondary" onclick="editVoucher('${v.id}')"><i class="fa fa-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deleteVoucher('${v.id}')"><i class="fa fa-trash"></i></button>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function renderAdminOrders() {
+  const tbody = document.getElementById('adminOrderTable');
+  tbody.innerHTML = state.orders.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Belum ada pesanan</td></tr>' :
+    state.orders.slice().reverse().map(o => {
+      const statusMap = { pending:['pending','Menunggu'], processing:['pending','Diproses'], shipped:['success','Dikirim'], done:['success','Selesai'], cancelled:['cancelled','Dibatalkan'] };
+      const [sc, sl] = statusMap[o.status] || ['pending','Pending'];
+      return `<tr><td><span style="font-family:Syne,sans-serif;font-weight:700;font-size:13px">${o.id}</span></td>
+        <td><div class="td-name">${o.userName}</div><div class="td-cat">${o.userEmail}</div></td>
+        <td>${o.items.map(i=>`${i.emoji||'📦'}${i.name}`).slice(0,2).join(', ')}${o.items.length>2?'...':''}</td>
+        <td style="font-weight:700">${formatRp(o.total)}</td>
+        <td><div class="order-status"><div class="order-status-dot ${sc}"></div>${sl}</div></td>
+        <td style="color:var(--muted);font-size:13px">${new Date(o.createdAt).toLocaleDateString('id-ID')}</td>
+      </tr>`;
+    }).join('');
+}
+
+function renderAdminUsers() {
+  const q = (document.getElementById('searchUser')?.value||'').toLowerCase();
+  const tbody = document.getElementById('adminUserTable');
+  const filtered = state.users.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  tbody.innerHTML = filtered.length === 0 ? '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Tidak ada pengguna</td></tr>' :
+    filtered.map(u => `<tr>
+      <td><div class="td-product"><div class="td-img" style="background:rgba(232,82,26,.15);color:var(--accent);font-weight:700">${u.name.charAt(0).toUpperCase()}</div><div class="td-name">${u.name}</div></div></td>
+      <td>${u.email}</td>
+      <td>${u.status==='banned'?'<span class="badge badge-red">Diblokir</span>':'<span class="badge badge-green">Aktif</span>'}</td>
+      <td>${(u.orders||[]).length} pesanan</td>
+      <td style="color:var(--muted);font-size:13px">${new Date(u.createdAt).toLocaleDateString('id-ID')}</td>
+      <td><div class="td-actions">
+        ${u.status==='banned'?`<button class="btn btn-sm btn-success" onclick="unbanUser('${u.id}')">Aktifkan</button>`:`<button class="btn btn-sm btn-danger" onclick="banUser('${u.id}')">Blokir</button>`}
+        <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}')"><i class="fa fa-trash"></i></button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function renderPendingAdmins() {
+  const el = document.getElementById('pendingAdminList');
+  el.innerHTML = state.pendingAdmins.length === 0 ?
+    '<p style="color:var(--muted);text-align:center;padding:32px">Tidak ada permintaan admin yang pending.</p>' :
+    state.pendingAdmins.map(a => `<div class="pending-card">
+      <div class="pending-info">
+        <div class="pending-avatar"><i class="fa fa-user-tie"></i></div>
+        <div>
+          <div class="pending-name">${a.name}</div>
+          <div class="pending-email">${a.email}</div>
+          ${a.reason?`<div style="color:var(--muted);font-size:12px;margin-top:4px">${a.reason}</div>`:''}
+          <div style="color:var(--muted);font-size:11px;margin-top:4px">${new Date(a.requestedAt).toLocaleDateString('id-ID')}</div>
+        </div>
+      </div>
+      <div class="pending-actions">
+        <button class="btn btn-sm btn-success" onclick="approveAdmin('${a.id}')"><i class="fa fa-check"></i> Setujui</button>
+        <button class="btn btn-sm btn-danger" onclick="rejectAdmin('${a.id}')"><i class="fa fa-times"></i> Tolak</button>
+      </div>
+    </div>`).join('');
+}
+
+// ===== PRODUCT CRUD =====
+function openProductForm(pid) {
+  ['pName','pCategory','pPrice','pDiscount','pStock','pEmoji','pDesc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['pIsNew','pIsFeatured','pIsHot'].forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
+  document.getElementById('editProductId').value = '';
+  document.getElementById('productFormTitle').textContent = 'Tambah Produk';
+  openModal('productFormModal');
+}
+
+function editProduct(pid) {
+  const p = state.products.find(x => x.id === pid);
+  if (!p) return;
+  document.getElementById('editProductId').value = pid;
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pCategory').value = p.category;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pDiscount').value = p.discount || 0;
+  document.getElementById('pStock').value = p.stock;
+  document.getElementById('pEmoji').value = p.emoji || '';
+  document.getElementById('pDesc').value = p.desc || '';
+  document.getElementById('pIsNew').checked = p.isNew;
+  document.getElementById('pIsFeatured').checked = p.isFeatured;
+  document.getElementById('pIsHot').checked = p.isHot;
+  document.getElementById('productFormTitle').textContent = 'Edit Produk';
+  openModal('productFormModal');
+}
+
+function saveProduct() {
+  const name = document.getElementById('pName').value.trim();
+  const category = document.getElementById('pCategory').value;
+  const price = parseInt(document.getElementById('pPrice').value);
+  const discount = parseInt(document.getElementById('pDiscount').value) || 0;
+  const stock = parseInt(document.getElementById('pStock').value);
+  const emoji = document.getElementById('pEmoji').value.trim();
+  const desc = document.getElementById('pDesc').value.trim();
+  const isNew = document.getElementById('pIsNew').checked;
+  const isFeatured = document.getElementById('pIsFeatured').checked;
+  const isHot = document.getElementById('pIsHot').checked;
+  if (!name || !category || !price || stock===undefined||isNaN(stock)) return toast('Isi semua field wajib!', 'error');
+  const existingId = document.getElementById('editProductId').value;
+  if (existingId) {
+    const idx = state.products.findIndex(p => p.id === existingId);
+    if (idx >= 0) state.products[idx] = { ...state.products[idx], name, category, price, discount, stock, emoji, desc, isNew, isFeatured, isHot };
+    toast('Produk berhasil diperbarui!', 'success');
+  } else {
+    state.products.push({ id: 'p'+Date.now(), name, category, price, discount, stock, emoji, desc, isNew, isFeatured, isHot, rating: 4.5, sold: 0 });
+    toast('Produk baru berhasil ditambahkan!', 'success');
+  }
+  saveProducts();
+  closeModal('productFormModal');
+  renderAdminProducts();
+  renderProducts();
+  renderFilters();
+  renderDashboard();
+}
+
+function deleteProduct(pid) {
+  if (!confirm('Yakin hapus produk ini?')) return;
+  state.products = state.products.filter(p => p.id !== pid);
+  saveProducts();
+  renderAdminProducts();
+  renderProducts();
+  renderFilters();
+  renderDashboard();
+  toast('Produk dihapus!', 'info');
+}
+
+// ===== VOUCHER CRUD =====
+function openVoucherForm() {
+  ['vCode','vValue','vMinOrder','vLimit','vExpiry'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('editVoucherId').value = '';
+  document.getElementById('voucherFormTitle').textContent = 'Buat Voucher';
+  openModal('voucherFormModal');
+}
+
+function editVoucher(vid) {
+  const v = state.vouchers.find(x => x.id === vid);
+  if (!v) return;
+  document.getElementById('editVoucherId').value = vid;
+  document.getElementById('vCode').value = v.code;
+  document.getElementById('vType').value = v.type;
+  document.getElementById('vValue').value = v.value;
+  document.getElementById('vMinOrder').value = v.minOrder || 0;
+  document.getElementById('vLimit').value = v.limit;
+  document.getElementById('vExpiry').value = v.expiry;
+  document.getElementById('voucherFormTitle').textContent = 'Edit Voucher';
+  openModal('voucherFormModal');
+}
+
+function saveVoucher() {
+  const code = document.getElementById('vCode').value.trim().toUpperCase();
+  const type = document.getElementById('vType').value;
+  const value = parseFloat(document.getElementById('vValue').value);
+  const minOrder = parseInt(document.getElementById('vMinOrder').value) || 0;
+  const limit = parseInt(document.getElementById('vLimit').value) || 100;
+  const expiry = document.getElementById('vExpiry').value;
+  if (!code || !value || !expiry) return toast('Isi semua field wajib!', 'error');
+  const existingId = document.getElementById('editVoucherId').value;
+  if (existingId) {
+    const idx = state.vouchers.findIndex(v => v.id === existingId);
+    if (idx >= 0) state.vouchers[idx] = { ...state.vouchers[idx], code, type, value, minOrder, limit, expiry };
+    toast('Voucher diperbarui!', 'success');
+  } else {
+    if (state.vouchers.find(v => v.code === code)) return toast('Kode voucher sudah ada!', 'error');
+    state.vouchers.push({ id: 'v'+Date.now(), code, type, value, minOrder, limit, used: 0, expiry, isActive: true });
+    toast('Voucher baru dibuat!', 'success');
+  }
+  saveVouchers();
+  closeModal('voucherFormModal');
+  renderAdminVouchers();
+}
+
+function toggleVoucher(vid) {
+  const idx = state.vouchers.findIndex(v => v.id === vid);
+  if (idx >= 0) { state.vouchers[idx].isActive = !state.vouchers[idx].isActive; saveVouchers(); renderAdminVouchers(); toast('Status voucher diubah!', 'info'); }
+}
+
+function deleteVoucher(vid) {
+  if (!confirm('Yakin hapus voucher ini?')) return;
+  state.vouchers = state.vouchers.filter(v => v.id !== vid);
+  saveVouchers();
+  renderAdminVouchers();
+  toast('Voucher dihapus!', 'info');
+}
+
+// ===== USER MANAGEMENT =====
+function banUser(uid) {
+  if (!confirm('Yakin blokir pengguna ini?')) return;
+  const idx = state.users.findIndex(u => u.id === uid);
+  if (idx >= 0) { state.users[idx].status = 'banned'; saveUsers(); renderAdminUsers(); toast('Pengguna diblokir!', 'info'); }
+}
+function unbanUser(uid) {
+  const idx = state.users.findIndex(u => u.id === uid);
+  if (idx >= 0) { state.users[idx].status = 'active'; saveUsers(); renderAdminUsers(); toast('Pengguna diaktifkan!', 'success'); }
+}
+function deleteUser(uid) {
+  if (!confirm('Yakin hapus pengguna ini? Semua data akan hilang!')) return;
+  state.users = state.users.filter(u => u.id !== uid);
+  saveUsers();
+  renderAdminUsers();
+  renderDashboard();
+  toast('Pengguna dihapus!', 'info');
+}
+
+// ===== PENDING ADMIN MANAGEMENT =====
+function approveAdmin(aid) {
+  const pa = state.pendingAdmins.find(a => a.id === aid);
+  if (!pa) return;
+  state.admins.push({ id: 'a'+Date.now(), name: pa.name, email: pa.email, password: pa.password, role: 'admin', status: 'active', createdAt: new Date().toISOString() });
+  state.pendingAdmins = state.pendingAdmins.filter(a => a.id !== aid);
+  saveAdmins(); savePendingAdmins();
+  renderPendingAdmins();
+  renderDashboard();
+  toast(`Admin ${pa.name} disetujui!`, 'success');
+}
+
+function rejectAdmin(aid) {
+  if (!confirm('Tolak permintaan admin ini?')) return;
+  state.pendingAdmins = state.pendingAdmins.filter(a => a.id !== aid);
+  savePendingAdmins();
+  renderPendingAdmins();
+  renderDashboard();
+  toast('Permintaan admin ditolak!', 'info');
+}
+
+// ===== UTILS =====
+function formatRp(n) {
+  return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+}
+
+function scrollToProducts() {
+  document.getElementById('productsSection')?.scrollIntoView({ behavior: 'smooth' });
+}
+function scrollToVoucher() {
+  document.getElementById('voucherSection')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== MARQUEE =====
+function initMarquee() {
+  const items = [
+    '🚚 Gratis Ongkir Min. Rp 150.000', '⚡ Flash Sale Setiap Hari', '🎁 Diskon Hingga 50%',
+    '🔒 Transaksi 100% Aman', '📱 App IGS Store Tersedia', '⭐ Rating 4.9 dari 10.000+ Pembeli',
+    '🎧 Headphones Premium', '👟 Sneakers Original', '💄 Beauty Products',
+  ];
+  const html = [...items, ...items].map(i => `<div class="marquee-item"><i class="fa fa-circle" style="font-size:4px"></i>${i}</div>`).join('');
+  document.getElementById('marqueeEl').innerHTML = html;
+}
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', () => {
+  initData();
+  initMarquee();
+  renderProducts();
+  renderFilters();
+  if (state.currentAdmin) {
+    document.getElementById('adminLoginBtn').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>

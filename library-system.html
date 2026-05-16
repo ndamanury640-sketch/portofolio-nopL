@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LibraryHub — School Library Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: #f8fafc; }
+    #root { min-height: 100vh; }
+    /* Loading spinner */
+    #loader {
+      position: fixed; inset: 0;
+      background: #0f2554;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; z-index: 9999;
+      transition: opacity .4s;
+    }
+    #loader .icon { font-size: 48px; }
+    #loader .title { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
+    #loader .sub { color: rgba(255,255,255,0.5); font-size: 13px; }
+    #loader .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin-top: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="icon">📖</div>
+  <div class="title">LibraryHub</div>
+  <div class="sub">School Library Management System</div>
+  <div class="spinner"></div>
+</div>
+
+<div id="root"></div>
+
+<!-- React + Babel via CDN -->
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+// ── MOCK DATA ────────────────────────────────────────────────────────────────
+const MOCK_BOOKS = [
+  { id: 1, title: "The Great Gatsby", author: "F. Scott Fitzgerald", isbn: "978-0-7432-7356-5", category: "Fiction", cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=120&q=80", stock: 5, available: 3, rating: 4.5, year: 1925, description: "A story of the mysteriously wealthy Jay Gatsby and his obsession." },
+  { id: 2, title: "To Kill a Mockingbird", author: "Harper Lee", isbn: "978-0-06-112008-4", category: "Fiction", cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=120&q=80", stock: 4, available: 4, rating: 4.8, year: 1960, description: "A classic of modern American literature about justice and morality." },
+  { id: 3, title: "1984", author: "George Orwell", isbn: "978-0-452-28423-4", category: "Dystopia", cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=120&q=80", stock: 6, available: 2, rating: 4.7, year: 1949, description: "A dystopian social science fiction novel about totalitarianism." },
+  { id: 4, title: "Sapiens", author: "Yuval Noah Harari", isbn: "978-0-06-231609-7", category: "Non-Fiction", cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=120&q=80", stock: 3, available: 1, rating: 4.6, year: 2011, description: "A brief history of humankind from ancient times to the present." },
+  { id: 5, title: "The Alchemist", author: "Paulo Coelho", isbn: "978-0-06-231500-7", category: "Fiction", cover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=120&q=80", stock: 8, available: 5, rating: 4.3, year: 1988, description: "A philosophical novel about following your dreams and destiny." },
+  { id: 6, title: "Educated", author: "Tara Westover", isbn: "978-0-399-59050-4", category: "Memoir", cover: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=120&q=80", stock: 4, available: 4, rating: 4.7, year: 2018, description: "A memoir of self-invention, family loyalty, and the power of education." },
+  { id: 7, title: "Atomic Habits", author: "James Clear", isbn: "978-0-7352-1129-2", category: "Self-Help", cover: "https://images.unsplash.com/photo-1610116306796-6fea9f4fae38?w=120&q=80", stock: 7, available: 6, rating: 4.9, year: 2018, description: "Tiny changes, remarkable results — the science of habit formation." },
+  { id: 8, title: "Dune", author: "Frank Herbert", isbn: "978-0-441-17271-9", category: "Sci-Fi", cover: "https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=120&q=80", stock: 5, available: 3, rating: 4.6, year: 1965, description: "The greatest science fiction novel of all time, set on a desert planet." },
+];
+
+const MOCK_STUDENTS = [
+  { id: 1, name: "Aisha Rahman", studentId: "STU-2024-001", grade: "11A", email: "aisha@school.edu", borrowed: 2, status: "active", avatar: "AR" },
+  { id: 2, name: "Budi Santoso", studentId: "STU-2024-002", grade: "10B", email: "budi@school.edu", borrowed: 1, status: "active", avatar: "BS" },
+  { id: 3, name: "Citra Dewi", studentId: "STU-2024-003", grade: "12A", email: "citra@school.edu", borrowed: 0, status: "active", avatar: "CD" },
+  { id: 4, name: "Dani Wijaya", studentId: "STU-2024-004", grade: "10A", email: "dani@school.edu", borrowed: 3, status: "overdue", avatar: "DW" },
+  { id: 5, name: "Eka Putri", studentId: "STU-2024-005", grade: "11B", email: "eka@school.edu", borrowed: 1, status: "active", avatar: "EP" },
+];
+
+const MOCK_BORROWS = [
+  { id: 1, studentName: "Aisha Rahman", bookTitle: "The Great Gatsby", borrowDate: "2025-05-01", dueDate: "2025-05-15", status: "active", fine: 0 },
+  { id: 2, studentName: "Budi Santoso", bookTitle: "Sapiens", borrowDate: "2025-04-28", dueDate: "2025-05-12", status: "overdue", fine: 4000 },
+  { id: 3, studentName: "Dani Wijaya", bookTitle: "1984", borrowDate: "2025-05-05", dueDate: "2025-05-19", status: "active", fine: 0 },
+  { id: 4, studentName: "Eka Putri", bookTitle: "Atomic Habits", borrowDate: "2025-05-10", dueDate: "2025-05-24", status: "active", fine: 0 },
+  { id: 5, studentName: "Citra Dewi", bookTitle: "Dune", borrowDate: "2025-04-20", dueDate: "2025-05-04", status: "returned", fine: 0 },
+];
+
+const ACTIVITIES = [
+  { id: 1, type: "borrow", text: "Aisha Rahman borrowed The Great Gatsby", time: "2 hours ago", icon: "📚" },
+  { id: 2, type: "return", text: "Citra Dewi returned Dune", time: "5 hours ago", icon: "✅" },
+  { id: 3, type: "new", text: "New book added: Atomic Habits", time: "1 day ago", icon: "➕" },
+  { id: 4, type: "overdue", text: "Budi Santoso has an overdue book", time: "2 days ago", icon: "⚠️" },
+  { id: 5, type: "register", text: "New student registered: Eka Putri", time: "3 days ago", icon: "👤" },
+];
+
+const CATEGORIES = ["All", "Fiction", "Non-Fiction", "Dystopia", "Sci-Fi", "Memoir", "Self-Help"];
+
+const { useState, useEffect } = React;
+
+// ── COLORS ───────────────────────────────────────────────────────────────────
+const c = {
+  navy:"#0f2554", blue:"#1a3a8f", blue2:"#2563eb", blue3:"#3b82f6",
+  blueLight:"#dbeafe", blueSoft:"#eff6ff",
+  white:"#ffffff", gray50:"#f8fafc", gray100:"#f1f5f9", gray200:"#e2e8f0",
+  gray300:"#cbd5e1", gray400:"#94a3b8", gray500:"#64748b", gray600:"#475569",
+  gray700:"#334155", gray800:"#1e293b", gray900:"#0f172a",
+  green:"#059669", greenLight:"#d1fae5",
+  amber:"#d97706", amberLight:"#fef3c7",
+  red:"#dc2626", redLight:"#fee2e2",
+};
+
+const s = {
+  card: { background:c.white, borderRadius:12, border:`1px solid ${c.gray200}`, padding:"20px 24px" },
+  badge: (col,bg) => ({ display:"inline-flex",alignItems:"center",gap:4,padding:"3px 10px",borderRadius:99,fontSize:12,fontWeight:600,color:col,background:bg }),
+  btn: (v="primary") => {
+    const map = { primary:{background:c.blue2,color:"#fff",border:"none"}, secondary:{background:c.white,color:c.blue2,border:`1.5px solid ${c.blue2}`}, ghost:{background:"transparent",color:c.gray600,border:`1px solid ${c.gray200}`}, danger:{background:c.redLight,color:c.red,border:"none"} };
+    return { ...map[v], padding:"8px 18px",borderRadius:8,fontSize:14,fontWeight:600,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontFamily:"inherit" };
+  },
+  input: { width:"100%",padding:"9px 13px",borderRadius:8,border:`1.5px solid ${c.gray200}`,fontSize:14,color:c.gray800,background:c.white,outline:"none",boxSizing:"border-box",fontFamily:"inherit" },
+  label: { fontSize:13,fontWeight:600,color:c.gray600,marginBottom:6,display:"block" },
+};
+
+// ── COMPONENTS ───────────────────────────────────────────────────────────────
+function StatCard({label,value,sub,icon,bg}){
+  return(
+    <div style={{...s.card,display:"flex",alignItems:"center",gap:16}}>
+      <div style={{width:52,height:52,borderRadius:14,background:bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,flexShrink:0}}>{icon}</div>
+      <div>
+        <div style={{fontSize:13,color:c.gray500,fontWeight:500,marginBottom:2}}>{label}</div>
+        <div style={{fontSize:28,fontWeight:800,color:c.gray900,lineHeight:1.1}}>{value}</div>
+        {sub && <div style={{fontSize:12,color:c.gray500,marginTop:2}}>{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+function Toast({msg,onClose}){
+  useEffect(()=>{ const t=setTimeout(onClose,3000);return()=>clearTimeout(t); },[]);
+  return(
+    <div style={{position:"fixed",bottom:28,right:28,background:c.gray800,color:"#fff",padding:"12px 20px",borderRadius:10,fontSize:14,fontWeight:500,zIndex:9999,boxShadow:"0 8px 32px rgba(0,0,0,0.18)",display:"flex",alignItems:"center",gap:10,maxWidth:360}}>
+      <span>✓</span>{msg}
+      <button onClick={onClose} style={{background:"none",border:"none",color:"#fff",cursor:"pointer",marginLeft:8,opacity:.7,fontSize:16}}>×</button>
+    </div>
+  );
+}
+
+function Modal({title,onClose,children,wide}){
+  return(
+    <div style={{position:"fixed",inset:0,background:"rgba(15,37,84,0.45)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20}}>
+      <div style={{background:c.white,borderRadius:16,width:"100%",maxWidth:wide?680:480,maxHeight:"90vh",overflow:"auto",boxShadow:"0 24px 64px rgba(0,0,0,0.18)"}}>
+        <div style={{padding:"20px 24px",borderBottom:`1px solid ${c.gray200}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{fontSize:18,fontWeight:700,color:c.gray900}}>{title}</div>
+          <button onClick={onClose} style={{background:c.gray100,border:"none",width:32,height:32,borderRadius:8,cursor:"pointer",fontSize:18,color:c.gray500,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+        </div>
+        <div style={{padding:"24px"}}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// Sidebar
+const NAV_ITEMS=[
+  {id:"dashboard",label:"Dashboard",icon:"🏠"},
+  {id:"books",label:"Book Management",icon:"📚"},
+  {id:"borrow",label:"Borrowing",icon:"🔄"},
+  {id:"students",label:"Students",icon:"👥"},
+  {id:"digital",label:"Digital Library",icon:"💻"},
+  {id:"analytics",label:"Analytics",icon:"📊"},
+  {id:"settings",label:"Settings",icon:"⚙️"},
+];
+
+function Sidebar({active,setActive,role}){
+  return(
+    <div style={{width:240,minHeight:"100vh",background:`linear-gradient(180deg,${c.navy} 0%,${c.blue} 100%)`,display:"flex",flexDirection:"column",padding:"0 0 24px",flexShrink:0}}>
+      <div style={{padding:"28px 24px 20px",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>📖</div>
+          <div>
+            <div style={{color:"#fff",fontWeight:800,fontSize:16,letterSpacing:.5}}>LibraryHub</div>
+            <div style={{color:"rgba(255,255,255,0.5)",fontSize:11}}>School Edition</div>
+          </div>
+        </div>
+      </div>
+      <div style={{padding:"12px 20px"}}>
+        <div style={{background:"rgba(255,255,255,0.1)",borderRadius:8,padding:"6px 12px",display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:12}}>👤</span>
+          <span style={{color:"rgba(255,255,255,0.8)",fontSize:12,fontWeight:600}}>{role==="admin"?"Administrator":role==="librarian"?"Librarian":"Student"}</span>
+        </div>
+      </div>
+      <nav style={{flex:1,padding:"8px 12px"}}>
+        {NAV_ITEMS.map(item=>(
+          <button key={item.id} onClick={()=>setActive(item.id)} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 12px",borderRadius:9,border:"none",background:active===item.id?"rgba(255,255,255,0.15)":"transparent",color:active===item.id?"#fff":"rgba(255,255,255,0.6)",fontSize:14,fontWeight:active===item.id?700:400,cursor:"pointer",textAlign:"left",marginBottom:2,borderLeft:active===item.id?"3px solid rgba(255,255,255,0.8)":"3px solid transparent",fontFamily:"inherit"}}>
+            <span style={{fontSize:16,width:20,textAlign:"center"}}>{item.icon}</span>{item.label}
+          </button>
+        ))}
+      </nav>
+      <div style={{padding:"12px 20px",borderTop:"1px solid rgba(255,255,255,0.1)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:34,height:34,borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff"}}>AD</div>
+          <div>
+            <div style={{color:"#fff",fontSize:13,fontWeight:600}}>Admin User</div>
+            <div style={{color:"rgba(255,255,255,0.5)",fontSize:11}}>admin@school.edu</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Topbar({page,showToast}){
+  const [notifOpen,setNotifOpen]=useState(false);
+  return(
+    <div style={{background:c.white,borderBottom:`1px solid ${c.gray200}`,padding:"12px 28px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100}}>
+      <div>
+        <div style={{fontSize:20,fontWeight:800,color:c.gray900}}>{NAV_ITEMS.find(n=>n.id===page)?.label||"Dashboard"}</div>
+        <div style={{fontSize:12,color:c.gray500}}>School Library Management System</div>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <div style={{position:"relative"}}>
+          <input placeholder="Quick search..." style={{...s.input,width:200,paddingLeft:32,background:c.gray50}}/>
+          <span style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:c.gray400,fontSize:15}}>🔍</span>
+        </div>
+        <div style={{position:"relative"}}>
+          <button onClick={()=>setNotifOpen(!notifOpen)} style={{...s.btn("ghost"),padding:"8px 10px",position:"relative"}}>
+            🔔
+            <span style={{position:"absolute",top:6,right:6,width:8,height:8,background:c.red,borderRadius:"50%",border:"2px solid #fff"}}/>
+          </button>
+          {notifOpen&&(
+            <div style={{position:"absolute",right:0,top:44,width:300,background:c.white,borderRadius:12,border:`1px solid ${c.gray200}`,boxShadow:"0 8px 32px rgba(0,0,0,0.12)",zIndex:200,overflow:"hidden"}}>
+              <div style={{padding:"12px 16px",fontWeight:700,fontSize:14,borderBottom:`1px solid ${c.gray100}`}}>Notifications</div>
+              {ACTIVITIES.slice(0,4).map(a=>(
+                <div key={a.id} style={{padding:"10px 16px",borderBottom:`1px solid ${c.gray100}`,fontSize:13,color:c.gray700,display:"flex",gap:8,alignItems:"flex-start"}}>
+                  <span style={{fontSize:16}}>{a.icon}</span>
+                  <div><div>{a.text}</div><div style={{fontSize:11,color:c.gray400,marginTop:2}}>{a.time}</div></div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// DASHBOARD
+function DashboardPage({showToast}){
+  const totalBooks=MOCK_BOOKS.reduce((s,b)=>s+b.stock,0);
+  const borrowed=MOCK_BOOKS.reduce((s,b)=>s+(b.stock-b.available),0);
+  const available=MOCK_BOOKS.reduce((s,b)=>s+b.available,0);
+  const chartData=[{label:"Mon",borrow:12,ret:8},{label:"Tue",borrow:19,ret:14},{label:"Wed",borrow:8,ret:11},{label:"Thu",borrow:24,ret:18},{label:"Fri",borrow:15,ret:20},{label:"Sat",borrow:6,ret:4}];
+  const maxV=Math.max(...chartData.map(d=>Math.max(d.borrow,d.ret)));
+  return(
+    <div style={{padding:"28px"}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:16,marginBottom:24}}>
+        <StatCard label="Total Books" value={totalBooks} sub="Across all categories" icon="📚" bg={c.blueLight}/>
+        <StatCard label="Borrowed" value={borrowed} sub="Currently out" icon="🔄" bg={c.amberLight}/>
+        <StatCard label="Available" value={available} sub="Ready to borrow" icon="✅" bg={c.greenLight}/>
+        <StatCard label="Active Students" value={MOCK_STUDENTS.length} sub="Registered members" icon="👥" bg="#ede9fe"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:20,marginBottom:20}}>
+        <div style={s.card}>
+          <div style={{fontWeight:700,fontSize:16,marginBottom:4,color:c.gray900}}>Weekly Activity</div>
+          <div style={{fontSize:13,color:c.gray500,marginBottom:20}}>Borrowing vs Returns this week</div>
+          <div style={{display:"flex",alignItems:"flex-end",gap:12,height:160}}>
+            {chartData.map((d,i)=>(
+              <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4,height:"100%"}}>
+                <div style={{flex:1,width:"100%",display:"flex",alignItems:"flex-end",gap:3}}>
+                  <div style={{flex:1,background:c.blue2,borderRadius:"4px 4px 0 0",height:`${(d.borrow/maxV)*100}%`,minHeight:4}}/>
+                  <div style={{flex:1,background:c.blueLight,borderRadius:"4px 4px 0 0",height:`${(d.ret/maxV)*100}%`,minHeight:4}}/>
+                </div>
+                <div style={{fontSize:11,color:c.gray500}}>{d.label}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:16,marginTop:12}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:c.gray500}}><div style={{width:10,height:10,borderRadius:2,background:c.blue2}}/> Borrowed</div>
+            <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:c.gray500}}><div style={{width:10,height:10,borderRadius:2,background:c.blueLight}}/> Returned</div>
+          </div>
+        </div>
+        <div style={s.card}>
+          <div style={{fontWeight:700,fontSize:16,marginBottom:16,color:c.gray900}}>By Category</div>
+          {["Fiction","Non-Fiction","Sci-Fi","Memoir","Self-Help"].map((cat,i)=>{
+            const pcts=[38,22,18,12,10];
+            const clrs=[c.blue2,c.green,c.amber,"#8b5cf6","#ec4899"];
+            return(
+              <div key={cat} style={{marginBottom:10}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:4}}><span style={{color:c.gray700}}>{cat}</span><span style={{color:c.gray500,fontWeight:600}}>{pcts[i]}%</span></div>
+                <div style={{height:6,borderRadius:99,background:c.gray100}}><div style={{height:"100%",width:`${pcts[i]}%`,borderRadius:99,background:clrs[i]}}/></div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+        <div style={s.card}>
+          <div style={{fontWeight:700,fontSize:16,marginBottom:16,color:c.gray900}}>Recent Activity</div>
+          {ACTIVITIES.map(a=>(
+            <div key={a.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:`1px solid ${c.gray100}`}}>
+              <div style={{width:32,height:32,borderRadius:8,background:c.gray100,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{a.icon}</div>
+              <div style={{flex:1}}><div style={{fontSize:13,color:c.gray700}}>{a.text}</div><div style={{fontSize:11,color:c.gray400,marginTop:2}}>{a.time}</div></div>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div style={s.card}>
+            <div style={{fontWeight:700,fontSize:16,marginBottom:12,color:c.gray900}}>Overdue Books ⚠️</div>
+            {MOCK_BORROWS.filter(b=>b.status==="overdue").map(b=>(
+              <div key={b.id} style={{padding:"10px 12px",background:c.redLight,borderRadius:8,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div><div style={{fontSize:13,fontWeight:600,color:c.red}}>{b.bookTitle}</div><div style={{fontSize:12,color:"#991b1b"}}>{b.studentName} · Due {b.dueDate}</div></div>
+                <div style={{fontSize:13,fontWeight:700,color:c.red}}>Rp {b.fine.toLocaleString()}</div>
+              </div>
+            ))}
+          </div>
+          <div style={s.card}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:c.gray900}}>Quick Actions</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              {["📚 Add Book","🔄 New Borrow","👤 Add Student","📊 Export Data"].map((label,i)=>(
+                <button key={i} onClick={()=>showToast(`${label} clicked`)} style={{...s.btn("ghost"),justifyContent:"center",padding:"10px 8px",fontSize:13,background:c.gray50}}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// BOOKS
+function BooksPage({showToast}){
+  const [books,setBooks]=useState(MOCK_BOOKS);
+  const [search,setSearch]=useState("");
+  const [cat,setCat]=useState("All");
+  const [showModal,setShowModal]=useState(false);
+  const [editBook,setEditBook]=useState(null);
+  const [form,setForm]=useState({title:"",author:"",isbn:"",category:"Fiction",stock:1});
+  const [page,setPage]=useState(1);
+  const PER_PAGE=6;
+  const filtered=books.filter(b=>(cat==="All"||b.category===cat)&&(b.title.toLowerCase().includes(search.toLowerCase())||b.author.toLowerCase().includes(search.toLowerCase())));
+  const paginated=filtered.slice((page-1)*PER_PAGE,page*PER_PAGE);
+  const totalPages=Math.ceil(filtered.length/PER_PAGE);
+  function openAdd(){setEditBook(null);setForm({title:"",author:"",isbn:"",category:"Fiction",stock:1});setShowModal(true);}
+  function openEdit(b){setEditBook(b);setForm({title:b.title,author:b.author,isbn:b.isbn,category:b.category,stock:b.stock});setShowModal(true);}
+  function save(){
+    if(!form.title)return;
+    if(editBook){setBooks(books.map(b=>b.id===editBook.id?{...b,...form}:b));showToast("Book updated");}
+    else{setBooks([{...form,id:Date.now(),available:form.stock,rating:4.0,year:2024,description:"",cover:"https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=120&q=80"},...books]);showToast("Book added");}
+    setShowModal(false);
+  }
+  function del(id){setBooks(books.filter(b=>b.id!==id));showToast("Book deleted");}
+  return(
+    <div style={{padding:"28px"}}>
+      <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap",alignItems:"center"}}>
+        <div style={{position:"relative",flex:1,minWidth:200}}>
+          <input value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}} placeholder="Search books or authors..." style={{...s.input,paddingLeft:36}}/>
+          <span style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",color:c.gray400}}>🔍</span>
+        </div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {CATEGORIES.map(ct=><button key={ct} onClick={()=>{setCat(ct);setPage(1);}} style={{...s.btn(cat===ct?"primary":"ghost"),padding:"8px 14px",fontSize:13}}>{ct}</button>)}
+        </div>
+        <button onClick={openAdd} style={s.btn("primary")}>＋ Add Book</button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16,marginBottom:24}}>
+        {paginated.map(book=>(
+          <div key={book.id} style={{...s.card,padding:0,overflow:"hidden"}}>
+            <div style={{display:"flex"}}>
+              <div style={{width:90,flexShrink:0,overflow:"hidden"}}>
+                <img src={book.cover} alt={book.title} style={{width:"100%",height:"100%",objectFit:"cover",minHeight:130}} onError={e=>{e.target.src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=120&q=80";}}/>
+              </div>
+              <div style={{padding:"14px 14px 14px 12px",flex:1,minWidth:0}}>
+                <div style={{fontWeight:700,fontSize:14,color:c.gray900,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{book.title}</div>
+                <div style={{fontSize:12,color:c.gray500,marginBottom:8}}>{book.author} · {book.year}</div>
+                <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
+                  <span style={s.badge(c.blue2,c.blueLight)}>{book.category}</span>
+                  <span style={s.badge(book.available>0?c.green:c.red,book.available>0?c.greenLight:c.redLight)}>{book.available>0?`${book.available} avail.`:"Out"}</span>
+                </div>
+                <div style={{fontSize:12,color:c.gray400,marginBottom:10}}>Stock: {book.stock} · ⭐ {book.rating}</div>
+                <div style={{display:"flex",gap:6}}>
+                  <button onClick={()=>openEdit(book)} style={{...s.btn("secondary"),padding:"5px 10px",fontSize:12}}>Edit</button>
+                  <button onClick={()=>del(book.id)} style={{...s.btn("danger"),padding:"5px 10px",fontSize:12}}>Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {totalPages>1&&<div style={{display:"flex",gap:8,justifyContent:"center"}}>{Array.from({length:totalPages},(_,i)=>i+1).map(p=><button key={p} onClick={()=>setPage(p)} style={{...s.btn(p===page?"primary":"ghost"),padding:"7px 14px"}}>{p}</button>)}</div>}
+      {showModal&&(
+        <Modal title={editBook?"Edit Book":"Add New Book"} onClose={()=>setShowModal(false)}>
+          {[["Title","title"],["Author","author"],["ISBN","isbn"]].map(([l,k])=>(
+            <div key={k} style={{marginBottom:14}}><label style={s.label}>{l}</label><input value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})} style={s.input}/></div>
+          ))}
+          <div style={{marginBottom:14}}><label style={s.label}>Category</label><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})} style={s.input}>{CATEGORIES.filter(ct=>ct!=="All").map(ct=><option key={ct}>{ct}</option>)}</select></div>
+          <div style={{marginBottom:20}}><label style={s.label}>Stock</label><input type="number" min="1" value={form.stock} onChange={e=>setForm({...form,stock:parseInt(e.target.value)||1})} style={s.input}/></div>
+          <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
+            <button onClick={()=>setShowModal(false)} style={s.btn("ghost")}>Cancel</button>
+            <button onClick={save} style={s.btn("primary")}>Save Book</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// BORROWING
+function BorrowPage({showToast}){
+  const [borrows,setBorrows]=useState(MOCK_BORROWS);
+  const [filter,setFilter]=useState("all");
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState({student:"",book:"",due:""});
+  const filtered=filter==="all"?borrows:borrows.filter(b=>b.status===filter);
+  function addBorrow(){
+    if(!form.student||!form.book||!form.due){showToast("Please fill all fields");return;}
+    setBorrows([{id:Date.now(),studentName:form.student,bookTitle:form.book,borrowDate:new Date().toISOString().split("T")[0],dueDate:form.due,status:"active",fine:0},...borrows]);
+    showToast("Book borrowed");setShowModal(false);setForm({student:"",book:"",due:""});
+  }
+  function markReturn(id){setBorrows(borrows.map(b=>b.id===id?{...b,status:"returned"}:b));showToast("Book returned");}
+  const stCol={active:[c.green,c.greenLight],overdue:[c.red,c.redLight],returned:[c.gray500,c.gray100]};
+  return(
+    <div style={{padding:"28px"}}>
+      <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap",alignItems:"center"}}>
+        {[["all","All"],["active","Active"],["overdue","Overdue"],["returned","Returned"]].map(([v,l])=>(
+          <button key={v} onClick={()=>setFilter(v)} style={{...s.btn(filter===v?"primary":"ghost"),padding:"8px 16px"}}>{l}</button>
+        ))}
+        <button onClick={()=>setShowModal(true)} style={{...s.btn("primary"),marginLeft:"auto"}}>＋ New Borrow</button>
+      </div>
+      <div style={{...s.card,padding:0,overflow:"hidden"}}>
+        <table style={{width:"100%",borderCollapse:"collapse"}}>
+          <thead><tr style={{background:c.gray50}}>
+            {["Student","Book Title","Borrow Date","Due Date","Status","Fine","Action"].map(h=><th key={h} style={{padding:"12px 16px",textAlign:"left",fontSize:12,fontWeight:700,color:c.gray500,letterSpacing:.5,borderBottom:`1px solid ${c.gray200}`,whiteSpace:"nowrap"}}>{h}</th>)}
+          </tr></thead>
+          <tbody>
+            {filtered.map(b=>{
+              const [col,bg]=stCol[b.status]||[c.gray500,c.gray100];
+              return(
+                <tr key={b.id} style={{borderBottom:`1px solid ${c.gray100}`}}>
+                  <td style={{padding:"12px 16px",fontSize:14,fontWeight:600,color:c.gray800}}>{b.studentName}</td>
+                  <td style={{padding:"12px 16px",fontSize:14,color:c.gray700}}>{b.bookTitle}</td>
+                  <td style={{padding:"12px 16px",fontSize:13,color:c.gray500}}>{b.borrowDate}</td>
+                  <td style={{padding:"12px 16px",fontSize:13,color:c.gray500}}>{b.dueDate}</td>
+                  <td style={{padding:"12px 16px"}}><span style={s.badge(col,bg)}>{b.status}</span></td>
+                  <td style={{padding:"12px 16px",fontSize:14,fontWeight:600,color:b.fine>0?c.red:c.gray500}}>{b.fine>0?`Rp ${b.fine.toLocaleString()}`:"—"}</td>
+                  <td style={{padding:"12px 16px"}}>{b.status==="active"||b.status==="overdue"?<button onClick={()=>markReturn(b.id)} style={{...s.btn("secondary"),padding:"5px 12px",fontSize:12}}>Return</button>:<span style={{color:c.gray400,fontSize:13}}>Done</span>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {filtered.length===0&&<div style={{textAlign:"center",padding:"48px 20px",color:c.gray400}}><div style={{fontSize:40,marginBottom:10}}>📋</div><div>No records found</div></div>}
+      </div>
+      {showModal&&(
+        <Modal title="New Borrow Request" onClose={()=>setShowModal(false)}>
+          <div style={{marginBottom:14}}><label style={s.label}>Student</label><select value={form.student} onChange={e=>setForm({...form,student:e.target.value})} style={s.input}><option value="">Select student...</option>{MOCK_STUDENTS.map(st=><option key={st.id}>{st.name}</option>)}</select></div>
+          <div style={{marginBottom:14}}><label style={s.label}>Book</label><select value={form.book} onChange={e=>setForm({...form,book:e.target.value})} style={s.input}><option value="">Select book...</option>{MOCK_BOOKS.filter(b=>b.available>0).map(b=><option key={b.id}>{b.title}</option>)}</select></div>
+          <div style={{marginBottom:20}}><label style={s.label}>Due Date</label><input type="date" value={form.due} onChange={e=>setForm({...form,due:e.target.value})} style={s.input}/></div>
+          <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}><button onClick={()=>setShowModal(false)} style={s.btn("ghost")}>Cancel</button><button onClick={addBorrow} style={s.btn("primary")}>Confirm Borrow</button></div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// STUDENTS
+function StudentsPage({showToast}){
+  const [students,setStudents]=useState(MOCK_STUDENTS);
+  const [search,setSearch]=useState("");
+  const [showModal,setShowModal]=useState(false);
+  const [form,setForm]=useState({name:"",studentId:"",grade:"",email:""});
+  const filtered=students.filter(st=>st.name.toLowerCase().includes(search.toLowerCase())||st.studentId.toLowerCase().includes(search.toLowerCase()));
+  function add(){
+    if(!form.name||!form.studentId){showToast("Name & ID required");return;}
+    setStudents([{...form,id:Date.now(),borrowed:0,status:"active",avatar:form.name.split(" ").map(n=>n[0]).join("").slice(0,2).toUpperCase()},...students]);
+    showToast("Student added");setShowModal(false);setForm({name:"",studentId:"",grade:"",email:""});
+  }
+  const avColors=["#3b82f6","#8b5cf6","#ec4899","#f59e0b","#10b981"];
+  const stCol={active:[c.green,c.greenLight],overdue:[c.red,c.redLight]};
+  return(
+    <div style={{padding:"28px"}}>
+      <div style={{display:"flex",gap:10,marginBottom:20,alignItems:"center"}}>
+        <div style={{position:"relative",flex:1,maxWidth:400}}><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search students..." style={{...s.input,paddingLeft:36}}/><span style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",color:c.gray400}}>🔍</span></div>
+        <button onClick={()=>setShowModal(true)} style={s.btn("primary")}>＋ Add Student</button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:16}}>
+        {filtered.map((st,i)=>{
+          const [col,bg]=stCol[st.status]||[c.gray500,c.gray100];
+          return(
+            <div key={st.id} style={s.card}>
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+                <div style={{width:46,height:46,borderRadius:"50%",background:avColors[i%avColors.length],display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:16,color:"#fff",flexShrink:0}}>{st.avatar}</div>
+                <div><div style={{fontWeight:700,fontSize:15,color:c.gray900}}>{st.name}</div><div style={{fontSize:12,color:c.gray500}}>{st.studentId} · Grade {st.grade}</div></div>
+                <span style={{...s.badge(col,bg),marginLeft:"auto",fontSize:11}}>{st.status}</span>
+              </div>
+              <div style={{fontSize:13,color:c.gray500,marginBottom:6}}>📧 {st.email}</div>
+              <div style={{fontSize:13,color:c.gray500,marginBottom:14}}>📚 {st.borrowed} book{st.borrowed!==1?"s":""} borrowed</div>
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={()=>showToast(`Viewing ${st.name}'s profile`)} style={{...s.btn("secondary"),flex:1,justifyContent:"center",fontSize:13}}>View Profile</button>
+                <button onClick={()=>{setStudents(students.filter(x=>x.id!==st.id));showToast("Removed");}} style={{...s.btn("danger"),padding:"8px 12px",fontSize:13}}>🗑</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {showModal&&(
+        <Modal title="Add New Student" onClose={()=>setShowModal(false)}>
+          {[["Full Name","name"],["Student ID","studentId"],["Grade","grade"],["Email","email"]].map(([l,k])=>(
+            <div key={k} style={{marginBottom:14}}><label style={s.label}>{l}</label><input value={form[k]} onChange={e=>setForm({...form,[k]:e.target.value})} style={s.input}/></div>
+          ))}
+          <div style={{display:"flex",gap:10,justifyContent:"flex-end",marginTop:6}}><button onClick={()=>setShowModal(false)} style={s.btn("ghost")}>Cancel</button><button onClick={add} style={s.btn("primary")}>Add Student</button></div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// DIGITAL LIBRARY
+function DigitalPage({showToast}){
+  const [favs,setFavs]=useState(new Set([1,5]));
+  const [query,setQuery]=useState("");
+  const [reading,setReading]=useState(null);
+  const filtered=MOCK_BOOKS.filter(b=>b.title.toLowerCase().includes(query.toLowerCase()));
+  function toggleFav(id){const ns=new Set(favs);ns.has(id)?ns.delete(id):ns.add(id);setFavs(ns);showToast(ns.has(id)?"Added to favorites":"Removed from favorites");}
+  if(reading) return(
+    <div style={{padding:"28px"}}>
+      <button onClick={()=>setReading(null)} style={{...s.btn("ghost"),marginBottom:16}}>← Back to Library</button>
+      <div style={{...s.card,maxWidth:700,margin:"0 auto"}}>
+        <div style={{display:"flex",gap:20,marginBottom:20}}>
+          <img src={reading.cover} alt={reading.title} style={{width:80,height:120,objectFit:"cover",borderRadius:8}}/>
+          <div>
+            <div style={{fontSize:22,fontWeight:800,color:c.gray900,marginBottom:4}}>{reading.title}</div>
+            <div style={{color:c.gray500,marginBottom:8}}>{reading.author}</div>
+            <div style={{display:"flex",gap:8}}><span style={s.badge(c.blue2,c.blueLight)}>{reading.category}</span><span style={{fontSize:13,color:c.amber}}>⭐ {reading.rating}</span></div>
+          </div>
+        </div>
+        <div style={{background:c.gray50,borderRadius:10,padding:20,fontSize:15,lineHeight:1.8,color:c.gray700}}>
+          <p style={{marginBottom:12}}>{reading.description}</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+        <div style={{marginTop:16}}><div style={{fontSize:13,color:c.gray500,marginBottom:6}}>Reading Progress</div><div style={{height:8,borderRadius:99,background:c.gray200}}><div style={{width:"34%",height:"100%",borderRadius:99,background:c.blue2}}/></div><div style={{fontSize:12,color:c.gray400,marginTop:4}}>34% complete</div></div>
+        <div style={{display:"flex",gap:10,marginTop:16}}>
+          <button onClick={()=>showToast("Downloading PDF...")} style={s.btn("primary")}>⬇ Download PDF</button>
+          <button onClick={()=>toggleFav(reading.id)} style={s.btn("ghost")}>{favs.has(reading.id)?"❤️":"🤍"} Favorite</button>
+        </div>
+      </div>
+    </div>
+  );
+  return(
+    <div style={{padding:"28px"}}>
+      <div style={{display:"flex",gap:10,marginBottom:24,alignItems:"center"}}>
+        <div style={{position:"relative",flex:1,maxWidth:400}}><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search digital books..." style={{...s.input,paddingLeft:36}}/><span style={{position:"absolute",left:11,top:"50%",transform:"translateY(-50%)",color:c.gray400}}>🔍</span></div>
+        <div style={{marginLeft:"auto",fontSize:14,color:c.gray500}}>🤖 AI Recommendations active</div>
+      </div>
+      <div style={{marginBottom:28}}>
+        <div style={{fontSize:16,fontWeight:700,color:c.gray900,marginBottom:14}}>🤖 AI Recommended for You</div>
+        <div style={{display:"flex",gap:12,overflowX:"auto",paddingBottom:8}}>
+          {MOCK_BOOKS.slice(0,4).map(b=>(
+            <div key={b.id} onClick={()=>setReading(b)} style={{...s.card,minWidth:180,cursor:"pointer",padding:12,flexShrink:0}}>
+              <img src={b.cover} alt={b.title} style={{width:"100%",height:110,objectFit:"cover",borderRadius:8,marginBottom:8}}/>
+              <div style={{fontSize:13,fontWeight:700,color:c.gray900,marginBottom:2}}>{b.title}</div>
+              <div style={{fontSize:12,color:c.gray500}}>{b.author}</div>
+              <div style={{fontSize:12,color:c.amber,marginTop:4}}>⭐ {b.rating}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{fontSize:16,fontWeight:700,color:c.gray900,marginBottom:14}}>All E-Books</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(250px,1fr))",gap:16}}>
+        {filtered.map(b=>(
+          <div key={b.id} style={s.card}>
+            <div style={{display:"flex",gap:12,marginBottom:12}}>
+              <img src={b.cover} alt={b.title} style={{width:60,height:85,objectFit:"cover",borderRadius:6,flexShrink:0}}/>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:700,fontSize:14,color:c.gray900,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{b.title}</div>
+                <div style={{fontSize:12,color:c.gray500,marginBottom:6}}>{b.author}</div>
+                <div style={{fontSize:12,color:c.amber}}>⭐ {b.rating}</div>
+                <span style={{...s.badge(c.blue2,c.blueLight),marginTop:6}}>{b.category}</span>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:6}}>
+              <button onClick={()=>setReading(b)} style={{...s.btn("primary"),flex:1,justifyContent:"center",fontSize:13,padding:"7px 0"}}>📖 Read</button>
+              <button onClick={()=>toggleFav(b.id)} style={{...s.btn("ghost"),padding:"7px 10px"}}>{favs.has(b.id)?"❤️":"🤍"}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ANALYTICS
+function AnalyticsPage(){
+  const months=["Jan","Feb","Mar","Apr","May","Jun"];
+  const data=[45,62,38,71,55,83];
+  const maxV=Math.max(...data);
+  return(
+    <div style={{padding:"28px"}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:16,marginBottom:24}}>
+        {[["Total Borrows","284","+12%"],["Books Returned","261","+8%"],["Fines Collected","Rp 48.000","-3%"],["New Members","23","+31%"]].map(([l,v,ch])=>(
+          <div key={l} style={s.card}><div style={{fontSize:12,color:c.gray500,fontWeight:600,marginBottom:6}}>{l}</div><div style={{fontSize:26,fontWeight:800,color:c.gray900,marginBottom:4}}>{v}</div><div style={{fontSize:12,color:ch.startsWith("+")?c.green:c.red,fontWeight:600}}>{ch} vs last month</div></div>
+        ))}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:20}}>
+        <div style={s.card}>
+          <div style={{fontWeight:700,fontSize:16,marginBottom:4,color:c.gray900}}>Monthly Borrowing Trend</div>
+          <div style={{fontSize:13,color:c.gray500,marginBottom:20}}>2025 — books borrowed per month</div>
+          <div style={{display:"flex",alignItems:"flex-end",gap:16,height:180}}>
+            {months.map((m,i)=>(
+              <div key={m} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
+                <div style={{fontSize:12,fontWeight:600,color:c.blue2}}>{data[i]}</div>
+                <div style={{width:"100%",background:`linear-gradient(to top,${c.blue2},${c.blue3})`,borderRadius:"6px 6px 0 0",height:`${(data[i]/maxV)*140}px`}}/>
+                <div style={{fontSize:12,color:c.gray500}}>{m}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={s.card}>
+          <div style={{fontWeight:700,fontSize:16,marginBottom:16,color:c.gray900}}>Top Books</div>
+          {MOCK_BOOKS.slice(0,5).map((b,i)=>(
+            <div key={b.id} style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+              <div style={{width:24,height:24,borderRadius:6,background:i<3?c.blueLight:c.gray100,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,color:i<3?c.blue2:c.gray500}}>{i+1}</div>
+              <div style={{flex:1,minWidth:0}}><div style={{fontSize:13,fontWeight:600,color:c.gray800,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{b.title}</div><div style={{fontSize:11,color:c.gray400}}>{b.stock-b.available} borrows</div></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// SETTINGS
+function SettingsPage({showToast}){
+  const [settings,setSettings]=useState({libraryName:"SMA Negeri 1 Library",email:"library@school.edu",finePer:2000,maxBorrow:3,borrowDays:14,lang:"id",notifications:true,autoRemind:true});
+  return(
+    <div style={{padding:"28px",maxWidth:600}}>
+      <div style={s.card}>
+        <div style={{fontWeight:700,fontSize:16,marginBottom:20,color:c.gray900}}>Library Settings</div>
+        {[["Library Name","libraryName","text"],["Contact Email","email","email"]].map(([l,k,t])=>(
+          <div key={k} style={{marginBottom:16}}><label style={s.label}>{l}</label><input type={t} value={settings[k]} onChange={e=>setSettings({...settings,[k]:e.target.value})} style={s.input}/></div>
+        ))}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:16}}>
+          <div><label style={s.label}>Fine/Day (Rp)</label><input type="number" value={settings.finePer} onChange={e=>setSettings({...settings,finePer:e.target.value})} style={s.input}/></div>
+          <div><label style={s.label}>Max Borrow</label><input type="number" value={settings.maxBorrow} onChange={e=>setSettings({...settings,maxBorrow:e.target.value})} style={s.input}/></div>
+          <div><label style={s.label}>Borrow Days</label><input type="number" value={settings.borrowDays} onChange={e=>setSettings({...settings,borrowDays:e.target.value})} style={s.input}/></div>
+        </div>
+        <div style={{marginBottom:16}}><label style={s.label}>Language</label><select value={settings.lang} onChange={e=>setSettings({...settings,lang:e.target.value})} style={s.input}><option value="id">Bahasa Indonesia</option><option value="en">English</option></select></div>
+        {[["notifications","Enable Notifications"],["autoRemind","Auto Due-Date Reminders"]].map(([k,l])=>(
+          <div key={k} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${c.gray100}`}}>
+            <span style={{fontSize:14,color:c.gray700}}>{l}</span>
+            <button onClick={()=>setSettings({...settings,[k]:!settings[k]})} style={{width:44,height:24,borderRadius:99,background:settings[k]?c.blue2:c.gray200,border:"none",cursor:"pointer",position:"relative"}}>
+              <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:settings[k]?23:3,transition:"left 0.2s"}}/>
+            </button>
+          </div>
+        ))}
+        <div style={{marginTop:20,display:"flex",gap:10}}>
+          <button onClick={()=>showToast("Settings saved!")} style={s.btn("primary")}>Save Settings</button>
+          <button onClick={()=>showToast("Data exported!")} style={s.btn("ghost")}>📥 Export</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// LOGIN PAGE
+function LoginPage({onLogin}){
+  const [tab,setTab]=useState("login");
+  const [form,setForm]=useState({email:"",password:"",name:"",role:"student"});
+  const [error,setError]=useState("");
+  function submit(){
+    if(!form.email||!form.password){setError("Please fill all fields");return;}
+    if(tab==="login"){const rm={"admin@school.edu":"admin","lib@school.edu":"librarian"};onLogin(rm[form.email]||"student");}
+    else{if(!form.name){setError("Name required");return;}onLogin(form.role);}
+  }
+  return(
+    <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${c.navy} 0%,${c.blue} 60%,#1e40af 100%)`,display:"flex",alignItems:"center",justifyContent:"center",padding:20,position:"relative",overflow:"hidden"}}>
+      {[[300,-100,500],[-100,200,300],[400,400,200]].map(([x,y,sz],i)=>(
+        <div key={i} style={{position:"absolute",left:x,top:y,width:sz,height:sz,borderRadius:"50%",border:"1px solid rgba(255,255,255,0.08)",pointerEvents:"none"}}/>
+      ))}
+      <div style={{width:"100%",maxWidth:420,position:"relative",zIndex:1}}>
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <div style={{fontSize:48,marginBottom:8}}>📖</div>
+          <div style={{color:"#fff",fontSize:28,fontWeight:800,letterSpacing:.5}}>LibraryHub</div>
+          <div style={{color:"rgba(255,255,255,0.6)",fontSize:14,marginTop:4}}>School Library Management System</div>
+        </div>
+        <div style={{background:"#fff",borderRadius:18,overflow:"hidden",boxShadow:"0 24px 64px rgba(0,0,0,0.25)"}}>
+          <div style={{display:"flex",borderBottom:`1px solid ${c.gray100}`}}>
+            {["login","register"].map(t=>(
+              <button key={t} onClick={()=>{setTab(t);setError("");}} style={{flex:1,padding:"16px",border:"none",background:tab===t?c.white:c.gray50,fontWeight:tab===t?700:400,fontSize:15,color:tab===t?c.blue2:c.gray500,cursor:"pointer",borderBottom:tab===t?`2px solid ${c.blue2}`:"2px solid transparent",fontFamily:"inherit"}}>
+                {t==="login"?"Sign In":"Register"}
+              </button>
+            ))}
+          </div>
+          <div style={{padding:"28px 28px 24px"}}>
+            {tab==="register"&&<div style={{marginBottom:16}}><label style={s.label}>Full Name</label><input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Your full name" style={s.input}/></div>}
+            <div style={{marginBottom:16}}><label style={s.label}>Email Address</label><input type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="you@school.edu" style={s.input}/></div>
+            <div style={{marginBottom:4}}><label style={s.label}>Password</label><input type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} placeholder="••••••••" style={s.input}/></div>
+            {tab==="login"&&<div style={{textAlign:"right",marginBottom:16}}><button style={{background:"none",border:"none",color:c.blue2,fontSize:13,cursor:"pointer",fontWeight:500}}>Forgot password?</button></div>}
+            {tab==="register"&&<div style={{margin:"16px 0"}}><label style={s.label}>Role</label><select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} style={s.input}><option value="student">Student</option><option value="librarian">Librarian</option><option value="admin">Admin</option></select></div>}
+            {error&&<div style={{color:c.red,fontSize:13,marginBottom:12,background:c.redLight,padding:"8px 12px",borderRadius:8}}>⚠ {error}</div>}
+            <button onClick={submit} style={{...s.btn("primary"),width:"100%",justifyContent:"center",padding:"12px",fontSize:15}}>
+              {tab==="login"?"Sign In →":"Create Account →"}
+            </button>
+            {tab==="login"&&<div style={{marginTop:16,padding:"12px",background:c.blueSoft,borderRadius:10,fontSize:12,color:c.gray600}}><strong>Demo:</strong> admin@school.edu / lib@school.edu · any password</div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// APP ROOT
+function App(){
+  const [auth,setAuth]=useState(null);
+  const [page,setPage]=useState("dashboard");
+  const [toast,setToast]=useState(null);
+  function showToast(msg){setToast(msg);}
+
+  useEffect(()=>{
+    const loader=document.getElementById("loader");
+    if(loader){loader.style.opacity="0";setTimeout(()=>loader.style.display="none",400);}
+  },[]);
+
+  if(!auth) return <LoginPage onLogin={role=>setAuth(role)}/>;
+
+  const pages={
+    dashboard:<DashboardPage showToast={showToast}/>,
+    books:<BooksPage showToast={showToast}/>,
+    borrow:<BorrowPage showToast={showToast}/>,
+    students:<StudentsPage showToast={showToast}/>,
+    digital:<DigitalPage showToast={showToast}/>,
+    analytics:<AnalyticsPage/>,
+    settings:<SettingsPage showToast={showToast}/>,
+  };
+
+  return(
+    <div style={{display:"flex",fontFamily:"'DM Sans','Segoe UI',sans-serif",minHeight:"100vh"}}>
+      <Sidebar active={page} setActive={setPage} role={auth}/>
+      <div style={{flex:1,background:c.gray50,minHeight:"100vh",overflow:"auto"}}>
+        <Topbar page={page} showToast={showToast}/>
+        {pages[page]||pages.dashboard}
+      </div>
+      {toast&&<Toast msg={toast} onClose={()=>setToast(null)}/>}
+    </div>
+  );
+}
+
+// Mount
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App/>);
+</script>
+</body>
+</html>
